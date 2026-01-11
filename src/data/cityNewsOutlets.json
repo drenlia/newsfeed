@@ -1,0 +1,1830 @@
+{
+  "version": "2.0.0",
+  "lastUpdated": "2026-01-10",
+  "cities": {
+    "Australia": {
+      "country": "AU",
+      "province": "",
+      "outlets": [
+        {
+          "name": "ABC News",
+          "url": "https://www.abc.net.au/news/feed/1948/rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Independent Australia",
+          "url": "http://feeds.feedburner.com/IndependentAustralia",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Business News - Latest Headlines",
+          "url": "https://www.businessnews.com.au/rssfeed/latest.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "InDaily",
+          "url": "https://indaily.com.au/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Crikey",
+          "url": "https://feeds.feedburner.com/com/rCTl",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "KUSA - News",
+          "url": "http://rssfeeds.9news.com/kusa/home&x=1",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Michael West",
+          "url": "https://www.michaelwest.com.au/feed/",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Bangladesh": {
+      "country": "BD",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Daily Star",
+          "url": "https://www.thedailystar.net/frontpage/rss.xml",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "BD24Live.com",
+          "url": "https://www.bd24live.com/feed",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "bdnews24.com - Home",
+          "url": "https://bdnews24.com/?widgetName=rssfeed&widgetId=1150&getXmlFeed=true",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Bangla News",
+          "url": "https://www.banglanews24.com/rss/rss.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "JUGANTOR",
+          "url": "https://www.jugantor.com/feed/rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "jagonews24.com | rss Feed",
+          "url": "https://www.jagonews24.com/rss/rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "kalerkantho Kantho",
+          "url": "https://www.kalerkantho.com/rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "প্রথম আলো",
+          "url": "https://www.prothomalo.com/feed/",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Brazil": {
+      "country": "BR",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Portal EBC - RSS",
+          "url": "http://www.ebc.com.br/rss/feed.xml",
+          "language": "pt",
+          "type": "online"
+        },
+        {
+          "name": "R7 - Notícias",
+          "url": "https://noticias.r7.com/feed.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "UOL",
+          "url": "http://rss.home.uol.com.br/index.xml",
+          "language": "pt",
+          "type": "online"
+        },
+        {
+          "name": "Brasil Wire",
+          "url": "http://www.brasilwire.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Jornal de Brasília",
+          "url": "https://jornaldebrasilia.com.br/feed/",
+          "language": "fr",
+          "type": "online"
+        }
+      ]
+    },
+    "Brisbane": {
+      "country": "AU",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Courier Mail",
+          "url": "https://www.couriermail.com.au/rss",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Brisbane Times - Latest News",
+          "url": "https://www.brisbanetimes.com.au/rss/feed.xml",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Canada": {
+      "country": "CA",
+      "province": "",
+      "outlets": [
+        {
+          "name": "CBC | Top Stories News",
+          "url": "https://www.cbc.ca/cmlink/rss-topstories",
+          "language": "en",
+          "type": "broadcast"
+        },
+        {
+          "name": "CTVNews.ca - Top Stories - Public RSS",
+          "url": "https://www.ctvnews.ca/rss/ctvnews-ca-top-stories-public-rss-1.822009",
+          "language": "en",
+          "type": "broadcast"
+        },
+        {
+          "name": "Financial Post",
+          "url": "https://business.financialpost.com/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "National Post",
+          "url": "https://nationalpost.com/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "LaPresse.ca - Actualités",
+          "url": "https://www.lapresse.ca/actualites/rss",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Canberra": {
+      "country": "AU",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Canberra Times - Local News",
+          "url": "https://www.canberratimes.com.au/rss.xml",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Delhi": {
+      "country": "IN",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Hindu - Home",
+          "url": "https://www.thehindu.com/feeder/default.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Business Line - Home",
+          "url": "https://www.thehindubusinessline.com/feeder/default.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Live Hindustan Rss feed",
+          "url": "https://feed.livehindustan.com/rss/3127",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Detroit": {
+      "country": "IN",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Free Press Journal",
+          "url": "https://www.freepressjournal.in/stories.rss",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "France": {
+      "country": "FR",
+      "province": "",
+      "outlets": [
+        {
+          "name": "france24.com",
+          "url": "https://www.france24.com/en/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Mediapart",
+          "url": "https://www.mediapart.fr/articles/feed",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Le Monde.fr - Actualités et Infos en France et dans le monde",
+          "url": "https://www.lemonde.fr/rss/une.xml",
+          "language": "fr",
+          "type": "newspaper"
+        },
+        {
+          "name": "L'Obs - A la une",
+          "url": "https://www.nouvelobs.com/a-la-une/rss.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Franceinfo - Les Titres",
+          "url": "https://www.francetvinfo.fr/titres.rss",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Le Huffington Post",
+          "url": "https://www.huffingtonpost.fr/feeds/index.xml",
+          "language": "fr",
+          "type": "newspaper"
+        },
+        {
+          "name": "La Dépêche du Midi : actualités et info en direct de la région Occitanie et des environs - ladepeche.fr",
+          "url": "https://www.ladepeche.fr/rss.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Ministry for Europe and Foreign Affairs - Actualités",
+          "url": "https://www.diplomatie.gouv.fr/spip.php?page=backend-fd&lang=en",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "L&#039;essentiel",
+          "url": "https://www.sudouest.fr/essentiel/rss.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Ouest-France - Actualité",
+          "url": "https://www.ouest-france.fr/rss-en-continu.xml",
+          "language": "fr",
+          "type": "online"
+        }
+      ]
+    },
+    "Germany": {
+      "country": "DE",
+      "province": "",
+      "outlets": [
+        {
+          "name": "ZEIT ONLINE | Nachrichten, Hintergründe und Debatten",
+          "url": "http://newsfeed.zeit.de/index",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "FOCUS Online",
+          "url": "https://rss.focus.de/fol/XML/rss_folnews.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Aktuell - FAZ.NET",
+          "url": "https://www.faz.net/rss/aktuell/",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "tagesschau.de - Die Nachrichten der ARD",
+          "url": "http://www.tagesschau.de/xml/rss2",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Deutsche Welle",
+          "url": "https://rss.dw.com/rdf/rss-en-all",
+          "language": "fr",
+          "type": "online"
+        }
+      ]
+    },
+    "Hobart": {
+      "country": "AU",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Mercury",
+          "url": "https://www.themercury.com.au/rss",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Hong Kong": {
+      "country": "HK",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Hong Kong Free Press HKFP",
+          "url": "https://www.hongkongfp.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "香港新聞RSS - 香港經濟日報 hket.com",
+          "url": "https://www.hket.com/rss/hongkong",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "hongkongnews.net latest rss headlines",
+          "url": "http://feeds.hongkongnews.net/rss/b82693edf38ebff8",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Hong Kong SAR China": {
+      "country": "HK",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Standard - Latest News",
+          "url": "https://www.thestandard.com.hk/newsfeed/latest/news.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "頭條日報 Headline Daily - 頭條網",
+          "url": "https://hd.stheadline.com/rss/news/daily/",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "India": {
+      "country": "IN",
+      "province": "",
+      "outlets": [
+        {
+          "name": "BBC News - India",
+          "url": "http://feeds.bbci.co.uk/news/world/asia/india/rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "SEBI RSS Feed",
+          "url": "https://www.sebi.gov.in/sebirss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "NDTV News -   Topstories",
+          "url": "https://feeds.feedburner.com/ndtvnews-top-stories",
+          "language": "en",
+          "type": "broadcast"
+        },
+        {
+          "name": "India Today | Latest Stories",
+          "url": "https://www.indiatoday.in/rss/home",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Front Page | The Indian Express",
+          "url": "http://indianexpress.com/print/front-page/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Top World News- News18.com",
+          "url": "https://www.news18.com/rss/world.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Firstpost India Latest News",
+          "url": "https://www.firstpost.com/rss/india.xml",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Home Page",
+          "url": "https://www.business-standard.com/rss/home_page_top_stories.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Outlook India",
+          "url": "https://www.outlookindia.com/rss/main/magazine",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Deccan Chronicle - Latest India news | Breaking news | Hyderabad News | World news | Business news | Politics | Technology news",
+          "url": "https://www.deccanchronicle.com/rss_feed/",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Moneycontrol Latest News",
+          "url": "http://www.moneycontrol.com/rss/latestnews.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "News, Latest News, Today's News Headlines, Breaking News, LIVE News - Oneindia",
+          "url": "https://www.oneindia.com/rss/news-fb.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Scroll.in",
+          "url": "http://feeds.feedburner.com/ScrollinArticles.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "The Financial Express",
+          "url": "https://www.financialexpress.com/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "TechGenyz",
+          "url": "http://feeds.feedburner.com/techgenyz",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Top Stories News - Gujarat Samachar : World's Leading Gujarati Newspaper",
+          "url": "https://www.gujaratsamachar.com/rss/top-stories",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Loksattaदेश-विदेश &#8211; Loksatta",
+          "url": "https://www.loksatta.com/desh-videsh/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Latest News program News18 Lokmat",
+          "url": "https://lokmat.news18.com/rss/program.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "OpIndia",
+          "url": "https://feeds.feedburner.com/opindia",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "ThePrint",
+          "url": "https://theprint.in/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Swarajya",
+          "url": "https://prod-qt-images.s3.amazonaws.com/production/swarajya/feed.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Latest And Breaking Hindi News Headlines, News In Hindi | अमर उजाला हिंदी न्यूज़ | - Amar Ujala",
+          "url": "https://www.amarujala.com/rss/breaking-news.xml",
+          "language": "fr",
+          "type": "newspaper"
+        },
+        {
+          "name": "Patrika : India's Leading Hindi News Portal",
+          "url": "http://api.patrika.com/rss/india-news",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "JansattaJansatta",
+          "url": "https://www.jansatta.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "देश | दैनिक भास्कर",
+          "url": "https://www.bhaskar.com/rss-feed/1061/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "ઈન્ડિયા | દિવ્ય ભાસ્કર",
+          "url": "https://www.divyabhaskar.co.in/rss-feed/1037/",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Indonesia": {
+      "country": "ID",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Republika Online RSS Feed",
+          "url": "https://www.republika.co.id/rss/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Tribunnews.com",
+          "url": "https://www.tribunnews.com/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Merdeka.com",
+          "url": "https://www.merdeka.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Suara.com",
+          "url": "https://www.suara.com/rss",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Iran": {
+      "country": "IR",
+      "province": "",
+      "outlets": [
+        {
+          "name": "خبرگزاری باشگاه خبرنگاران | آخرین اخبار ایران و جهان | YJC",
+          "url": "https://www.yjc.ir/fa/rss/allnews",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "تابناک | TABNAK",
+          "url": "https://www.tabnak.ir/fa/rss/allnews",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "خبرگزاری ایسنا | صفحه اصلی |  ISNA News Agency",
+          "url": "https://www.isna.ir/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "خبرگزاری مهر | اخبار ایران و جهان | Mehr News Agency",
+          "url": "https://www.mehrnews.com/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "خبرگزاری خبرآنلاین - آخرین اخبار ایران و جهان | Khabaronline",
+          "url": "https://www.khabaronline.ir/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "اخبار ایران و جهان",
+          "url": "https://www.tasnimnews.com/fa/rss/feed/0/8/0/%D9%85%D9%87%D9%85%D8%AA%D8%B1%DB%8C%D9%86-%D8%A7%D8%AE%D8%A8%D8%A7%D8%B1-%D8%AA%D8%B3%D9%86%DB%8C%D9%85",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "عصر ايران",
+          "url": "https://www.asriran.com/fa/rss/allnews",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Ireland": {
+      "country": "IE",
+      "province": "",
+      "outlets": [
+        {
+          "name": "TheJournal.ie",
+          "url": "https://www.thejournal.ie/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "All: BreakingNews.ie",
+          "url": "https://feeds.breakingnews.ie/bntopstories",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "The42",
+          "url": "https://www.the42.ie/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "IrishExaminer.com",
+          "url": "https://feeds.feedburner.com/ietopstories",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "IrishCentral.com - Top Stories",
+          "url": "https://feeds.feedburner.com/IrishCentral",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Irish Mirror - Home",
+          "url": "https://www.irishmirror.ie/?service=rss",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Italy": {
+      "country": "IT",
+      "province": "",
+      "outlets": [
+        {
+          "name": "RSS di   - ANSA.it",
+          "url": "https://www.ansa.it/sito/ansait_rss.xml",
+          "language": "it",
+          "type": "online"
+        },
+        {
+          "name": "The Local",
+          "url": "https://feeds.thelocal.com/rss/it",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "RSS DiariodelWeb.it",
+          "url": "https://www.diariodelweb.it/rss/home/",
+          "language": "it",
+          "type": "online"
+        },
+        {
+          "name": "Fanpage",
+          "url": "https://www.fanpage.it/feed/",
+          "language": "it",
+          "type": "online"
+        },
+        {
+          "name": "Libero Quotidiano",
+          "url": "https://www.liberoquotidiano.it/rss.xml",
+          "language": "it",
+          "type": "online"
+        },
+        {
+          "name": "Il Mattino Web",
+          "url": "https://www.ilmattino.it/?sez=XML&args&p=search&args[box]=Home&limit=20&layout=rss",
+          "language": "it",
+          "type": "online"
+        },
+        {
+          "name": "Adnkronos - ultimoratop",
+          "url": "http://rss.adnkronos.com/RSS_PrimaPagina.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Milan News",
+          "url": "https://www.milannews.it/rss/",
+          "language": "it",
+          "type": "online"
+        },
+        {
+          "name": "Internazionale",
+          "url": "https://www.internazionale.it/sitemaps/rss.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Panorama",
+          "url": "https://www.panorama.it/feeds/feed.rss",
+          "language": "it",
+          "type": "online"
+        },
+        {
+          "name": "Repubblica.it > Homepage",
+          "url": "https://www.repubblica.it/rss/homepage/rss2.0.xml",
+          "language": "it",
+          "type": "online"
+        },
+        {
+          "name": "Il Post",
+          "url": "https://www.ilpost.it/feed/",
+          "language": "fr",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Japan": {
+      "country": "JP",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Japan Today",
+          "url": "https://japantoday.com/feed",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "News On Japan",
+          "url": "http://www.newsonjapan.com/rss/top.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "All - Kyodo News+",
+          "url": "https://english.kyodonews.net/rss/all.xml",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "BRIDGE（ブリッジ）テクノロジー＆スタートアップ情報",
+          "url": "http://feeds.feedburner.com/SdJapan",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "ライブドアニュース - 主要トピックス",
+          "url": "https://news.livedoor.com/topics/rss/top.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "朝日新聞デジタル",
+          "url": "http://rss.asahi.com/rss/asahi/newsheadlines.rdf",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "London": {
+      "country": "BR",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Rio Times",
+          "url": "https://riotimesonline.com/feed/",
+          "language": "fr",
+          "type": "newspaper"
+        },
+        {
+          "name": "India | The Guardian",
+          "url": "https://www.theguardian.com/world/india/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Times of India",
+          "url": "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Economic Times",
+          "url": "https://economictimes.indiatimes.com/rssfeedsdefault.cms",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Marathi News: मराठी बातम्या,  Latest News in Marathi, Breaking Marathi News, Marathi News Paper | Maharashtra Times",
+          "url": "https://maharashtratimes.com/rssfeedsdefault.cms",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Navbharat Times",
+          "url": "https://navbharattimes.indiatimes.com/rssfeedsdefault.cms",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Italy | The Guardian",
+          "url": "https://www.theguardian.com/world/italy/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Japan Times latest articles",
+          "url": "https://www.japantimes.co.jp/feed/topstories/",
+          "language": "ja",
+          "type": "newspaper"
+        },
+        {
+          "name": "Mexico | The Guardian",
+          "url": "https://www.theguardian.com/world/mexico/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Premium Times Nigeria",
+          "url": "https://www.premiumtimesng.com/feed",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "The Guardian Nigeria News – Nigeria and World News",
+          "url": "https://guardian.ng/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "The Moscow Times - Independent News From Russia",
+          "url": "https://www.themoscowtimes.com/rss/news",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "TimesLIVE",
+          "url": "https://www.timeslive.co.za/rss/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "World news | The Guardian",
+          "url": "https://www.theguardian.com/world/rss",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Los Angeles": {
+      "country": "PH",
+      "province": "",
+      "outlets": [
+        {
+          "name": "- The Manila Times",
+          "url": "https://www.manilatimes.net/rssfeed/",
+          "language": "fr",
+          "type": "newspaper"
+        },
+        {
+          "name": "World & Nation",
+          "url": "https://www.latimes.com/world-nation/rss2.0.xml",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Melbourne": {
+      "country": "AU",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Age - Latest News",
+          "url": "https://www.theage.com.au/rss/feed.xml",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Mexico": {
+      "country": "MX",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Excélsior - RSS",
+          "url": "https://www.excelsior.com.mx/rss.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Reforma",
+          "url": "https://www.reforma.com/rss/portada.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Lo último en Vanguardia MX",
+          "url": "https://vanguardia.com.mx/rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Portada, El Siglo de Torreón",
+          "url": "https://www.elsiglodetorreon.com.mx/index.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "El Financiero",
+          "url": "https://www.elfinanciero.com.mx/arc/outboundfeeds/rss/?outputType=xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "ElNorte",
+          "url": "https://www.elnorte.com/rss/portada.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "El Informador :: Noticias de Jalisco, México, Deportes & Entretenimiento",
+          "url": "https://www.informador.mx/rss/ultimas-noticias.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "24 Horas",
+          "url": "https://www.24-horas.mx/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Tu Periódico Quequi",
+          "url": "https://quequi.com.mx/feed/",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "DEBATE",
+          "url": "https://www.debate.com.mx/rss/feed.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "Mexico News Daily",
+          "url": "https://mexiconewsdaily.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "El Diario",
+          "url": "https://diario.mx/jrz/media/sitemaps/rss.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "8 Columnas",
+          "url": "https://8columnas.com.mx/feed/",
+          "language": "fr",
+          "type": "online"
+        }
+      ]
+    },
+    "Mumbai": {
+      "country": "IN",
+      "province": "",
+      "outlets": [
+        {
+          "name": "India News",
+          "url": "https://www.dnaindia.com/feeds/india.xml",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Myanmar (Burma)": {
+      "country": "MM",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Myanmar Gazette News Media Forum Network",
+          "url": "http://myanmargazette.net/feed",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "DVB Multimedia Group",
+          "url": "http://www.dvb.no/feed",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "THIT HTOO LWIN (Daily News)",
+          "url": "http://www.thithtoolwin.com/feeds/posts/default",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "New York": {
+      "country": "JP",
+      "province": "",
+      "outlets": [
+        {
+          "name": "NYT > Japan",
+          "url": "https://www.nytimes.com/svc/collections/v1/publish/http://www.nytimes.com/topic/destination/japan/rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "NYT > Top Stories",
+          "url": "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Nigeria": {
+      "country": "NG",
+      "province": "",
+      "outlets": [
+        {
+          "name": "All Content",
+          "url": "http://saharareporters.com/feeds/latest/feed",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Nigeria News Links | Today's Updates - Nigerian Bulletin",
+          "url": "https://www.nigerianbulletin.com/forums/-/index.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Nigerian News. Latest Nigeria News. Your online Nigerian Newspaper.",
+          "url": "http://feeds.feedburner.com/Nigerianeye",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Legit.ng",
+          "url": "https://www.legit.ng/rss/all.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Latest Nigeria News, Nigerian Newspapers, Politics",
+          "url": "https://thenationonlineng.net/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Daily Post Nigeria",
+          "url": "https://dailypost.ng/feed",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Information Nigeria",
+          "url": "https://www.informationng.com/feed",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Tribune Online",
+          "url": "http://tribuneonlineng.com/feed/",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Ottawa": {
+      "country": "CA",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Ottawa Citizen",
+          "url": "https://ottawacitizen.com/feed/",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Pakistan": {
+      "country": "PK",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Express Tribune",
+          "url": "https://tribune.com.pk/feed/home",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "The Nation - Top Stories",
+          "url": "https://nation.com.pk/rss/top-stories",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "قومی خبریں",
+          "url": "https://jang.com.pk/rss/1/1",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "The News International - Pakistan",
+          "url": "https://www.thenews.com.pk/rss/1/1",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "News Blog",
+          "url": "https://newsnblogs.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "UrduPoint.com All Urdu News",
+          "url": "https://www.urdupoint.com/rss/urdupoint.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "ایکسپریس اردو",
+          "url": "https://www.express.pk/feed/",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Paris": {
+      "country": "FR",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Paris Star",
+          "url": "https://www.parisstaronline.com/feed",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Perth": {
+      "country": "AU",
+      "province": "",
+      "outlets": [
+        {
+          "name": "PerthNow",
+          "url": "https://www.perthnow.com.au/news/feed",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Philadelphia": {
+      "country": "PH",
+      "province": "",
+      "outlets": [
+        {
+          "name": "INQUIRER.net",
+          "url": "https://www.inquirer.net/fullfeed",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Philippines": {
+      "country": "PH",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Latest News | Philippine Information Agency",
+          "url": "https://pia.gov.ph/news/feed.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Interaksyon",
+          "url": "https://www.interaksyon.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "philstar.com - RSS Headlines",
+          "url": "https://www.philstar.com/rss/headlines",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "BusinessWorld",
+          "url": "https://www.bworldonline.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "https://www.sunstar.com.ph/",
+          "url": "https://www.sunstar.com.ph/rssFeed/selected",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "PhilNews.XYZ",
+          "url": "https://www.philnews.xyz/feeds/posts/default?alt=rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Manila Standard",
+          "url": "https://manilastandard.net/feed/all",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "GMA News Online / News",
+          "url": "https://data.gmanews.tv/gno/rss/news/feed.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Current PH",
+          "url": "https://currentph.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Top Gear: The Philippine authority on cars and the automotive industry",
+          "url": "https://www.topgear.com.ph/feed/rss1",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Eagle News",
+          "url": "https://www.eaglenews.ph/feed/",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "UNBOX PH",
+          "url": "https://www.unbox.ph/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Tempo – The Nation's Fastest Growing Newspaper",
+          "url": "http://tempo.com.ph/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Abante Tonite",
+          "url": "https://tonite.abante.com.ph/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "BusinessMirror",
+          "url": "https://businessmirror.com.ph/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Latest News | Philippine News Agency",
+          "url": "https://www.pna.gov.ph/latest.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "TechPinas : Philippines' Technology News, Tips and Reviews Blog",
+          "url": "http://feeds.feedburner.com/Techpinas",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "BICOL STANDARD | Bicol News | Bicol Newspaper",
+          "url": "http://www.bicolstandard.com/feeds/posts/default?alt=rss",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Poland": {
+      "country": "PL",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Najnowsze",
+          "url": "http://feeds.feedburner.com/wPolitycepl",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Newsweek Polska",
+          "url": "https://www.newsweek.pl/rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Dziennik.pl Dziennik - dziennik.pl",
+          "url": "http://rss.dziennik.pl/Dziennik-PL/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "www.wirtualnemedia.pl",
+          "url": "https://www.wirtualnemedia.pl/rss/wirtualnemedia_rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "GazetaPrawna.pl - biznes, podatki, prawo, finanse, wiadomości, praca",
+          "url": "http://rss.gazetaprawna.pl/GazetaPrawna",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "https://www.rp.pl",
+          "url": "https://www.rp.pl/rss/1019",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Polska Agencja Prasowa SA",
+          "url": "https://www.pap.pl/rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "RMF24.pl",
+          "url": "https://www.rmf24.pl/feed",
+          "language": "en",
+          "type": "radio"
+        }
+      ]
+    },
+    "Russia": {
+      "country": "RU",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Lenta.ru : Новости",
+          "url": "https://lenta.ru/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Вести.Ru",
+          "url": "https://www.vesti.ru/vesti.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Газета.Ru - Первая полоса",
+          "url": "https://www.gazeta.ru/export/rss/first.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Все материалы - Московский Комсомолец",
+          "url": "https://www.mk.ru/rss/index.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Российская Газета",
+          "url": "https://rg.ru/xml/index.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "NEWSru.com :: Главные новости",
+          "url": "https://rss.newsru.com/top/big/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "RT - Daily news",
+          "url": "https://www.rt.com/rss/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Meduza.io",
+          "url": "https://meduza.io/rss/all",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Russia Insider Daily Headlines",
+          "url": "https://russia-insider.com/en/all-content/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "TASS",
+          "url": "http://tass.com/rss/v2.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Газета",
+          "url": "https://www.kommersant.ru/RSS/main.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "PravdaReport",
+          "url": "https://www.pravdareport.com/export.xml",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "San Antonio": {
+      "country": "GB",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Daily Express :: News Feed",
+          "url": "http://feeds.feedburner.com/daily-express-news-showbiz",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "South Africa": {
+      "country": "ZA",
+      "province": "",
+      "outlets": [
+        {
+          "name": "SowetanLIVE",
+          "url": "https://www.sowetanlive.co.za/rss/?publication=sowetan-live",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "TechCentral",
+          "url": "https://techcentral.co.za/feed",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "News24 Top Stories",
+          "url": "http://feeds.news24.com/articles/news24/TopStories/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Eyewitness News | Latest News",
+          "url": "https://ewn.co.za/RSS%20Feeds/Latest%20News",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "The Citizen",
+          "url": "https://citizen.co.za/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Daily Maverick",
+          "url": "https://www.dailymaverick.co.za/dmrss/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Moneyweb",
+          "url": "https://www.moneyweb.co.za/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "IOL section feed for News",
+          "url": "http://rss.iol.io/iol/news",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "The South African",
+          "url": "https://www.thesouthafrican.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Axios",
+          "url": "https://api.axios.com/feed/",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Spain": {
+      "country": "ES",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Local",
+          "url": "https://feeds.thelocal.com/rss/es",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "EL PAÍS: el periódico global",
+          "url": "https://feeds.elpais.com/mrss-s/pages/ep/site/elpais.com/portada",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "España",
+          "url": "https://rss.elconfidencial.com/espana/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "ElDiario.es - ElDiario.es",
+          "url": "https://www.eldiario.es/rss/",
+          "language": "es",
+          "type": "online"
+        },
+        {
+          "name": "Portada // expansion",
+          "url": "https://e00-expansion.uecdn.es/rss/portada.xml",
+          "language": "es",
+          "type": "online"
+        },
+        {
+          "name": "El Periódico - portada",
+          "url": "https://www.elperiodico.com/es/rss/rss_portada.xml",
+          "language": "fr",
+          "type": "online"
+        },
+        {
+          "name": "huffingtonpost.es",
+          "url": "https://www.huffingtonpost.es/feeds/index.xml",
+          "language": "es",
+          "type": "newspaper"
+        },
+        {
+          "name": "Euro Weekly News Spain",
+          "url": "https://www.euroweeklynews.com/feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Agencia EFE | www.efe.com | English edition",
+          "url": "https://www.efe.com/efe/english/4/rss",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Sydney": {
+      "country": "AU",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Latest News and News Headlines | Daily Telegraph",
+          "url": "https://www.dailytelegraph.com.au/news/breaking-news/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Sydney Morning Herald - Latest News",
+          "url": "https://www.smh.com.au/rss/feed.xml",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "São Paulo": {
+      "country": "BR",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Folha de S.Paulo - Em cima da hora - Principal",
+          "url": "https://feeds.folha.uol.com.br/emcimadahora/rss091.xml",
+          "language": "fr",
+          "type": "online"
+        }
+      ]
+    },
+    "Toronto": {
+      "country": "CA",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Toronto Star",
+          "url": "https://www.thestar.com/content/thestar/feed.RSSManagerServlet.articles.topstories.rss",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Toronto Sun - RSS Feed",
+          "url": "https://torontosun.com/category/news/feed",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Ukraine": {
+      "country": "UA",
+      "province": "",
+      "outlets": [
+        {
+          "name": "News Agency UNIAN",
+          "url": "https://rss.unian.net/site/news_eng.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "ТЕЛЕГРАФ - последние новости Украины и мира",
+          "url": "https://telegraf.com.ua/yandex-feed/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Последние новости на сайте korrespondent.net",
+          "url": "http://k.img.com.ua/rss/ru/all_news2.0.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Цензор.НЕТ - Новости",
+          "url": "https://censor.net.ua/includes/news_ru.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Новини на tsn.ua",
+          "url": "https://tsn.ua/rss/full.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Українська правда",
+          "url": "https://www.pravda.com.ua/rss/",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Гордон - Самые популярные материалы",
+          "url": "https://gordonua.com/xml/rss_category/top.html",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "НВ",
+          "url": "https://nv.ua/rss/all.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Информационное агентство УНИАН",
+          "url": "https://rss.unian.net/site/news_rus.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Еспресо - український погляд на світ!",
+          "url": "https://espreso.tv/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Gazeta.ua",
+          "url": "https://gazeta.ua/rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Вести.ua",
+          "url": "https://vesti.ua/feeds/partners",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "United Kingdom": {
+      "country": "GB",
+      "province": "",
+      "outlets": [
+        {
+          "name": "BBC News - Home",
+          "url": "http://feeds.bbci.co.uk/news/rss.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Home | Mail Online",
+          "url": "https://www.dailymail.co.uk/home/index.rss",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "The Independent",
+          "url": "http://www.independent.co.uk/news/uk/rss",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "United States": {
+      "country": "US",
+      "province": "",
+      "outlets": [
+        {
+          "name": "World News - Breaking News, Top Stories",
+          "url": "https://www.huffpost.com/section/world-news/feed",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "FOX News",
+          "url": "http://feeds.foxnews.com/foxnews/latest",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "WSJ.com: World News",
+          "url": "https://feeds.a.dj.com/rss/RSSWorldNews.xml",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "CNN.com - RSS Channel - App International Edition",
+          "url": "http://rss.cnn.com/rss/edition.rss",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "Yahoo News - Latest News & Headlines",
+          "url": "https://news.yahoo.com/rss/mostviewed",
+          "language": "en",
+          "type": "online"
+        },
+        {
+          "name": "US Top News and Analysis",
+          "url": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
+          "language": "fr",
+          "type": "online"
+        }
+      ]
+    },
+    "Vancouver": {
+      "country": "CA",
+      "province": "",
+      "outlets": [
+        {
+          "name": "The Province",
+          "url": "https://theprovince.com/feed/",
+          "language": "en",
+          "type": "online"
+        }
+      ]
+    },
+    "Victoria": {
+      "country": "AU",
+      "province": "",
+      "outlets": [
+        {
+          "name": "Latest News and News Headlines | Herald Sun",
+          "url": "https://www.heraldsun.com.au/news/breaking-news/rss",
+          "language": "en",
+          "type": "newspaper"
+        }
+      ]
+    },
+    "Washington": {
+      "country": "US",
+      "province": "",
+      "outlets": [
+        {
+          "name": "World",
+          "url": "http://feeds.washingtonpost.com/rss/world",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
+          "name": "Playbook",
+          "url": "https://rss.politico.com/playbook.xml",
+          "language": "fr",
+          "type": "online"
+        }
+      ]
+    }
+  }
+}
