@@ -19,8 +19,8 @@ services:
       - NODE_ENV=development
       - VITE_PORT=3072
       - BACKEND_PORT=3073
-      # Set HOST to match your nginx server_name
-      - HOST=news.drenlia.com
+      # HOST is read from .env file (defaults to localhost)
+      - HOST=${HOST:-localhost}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3072', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]

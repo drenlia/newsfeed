@@ -9,11 +9,12 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      # Set HOST to match your nginx server_name
+      # HOST and ALLOWED_HOSTS are read from .env file
+      # Set HOST to match your nginx server_name (or domain)
       # This tells Vite which host(s) to allow
-      - HOST=news.drenlia.com
-      # Or use ALLOWED_HOSTS for multiple hosts:
-      # - ALLOWED_HOSTS=news.drenlia.com,www.drenlia.com
+      - HOST=${HOST:-localhost}
+      # Or use ALLOWED_HOSTS for multiple hosts (comma-separated):
+      # - ALLOWED_HOSTS=${ALLOWED_HOSTS}
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3072', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s

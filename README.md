@@ -11,7 +11,7 @@ A modern, bilingual news aggregator that brings together the latest articles fro
 - **Smart Organization**: Create custom tabs to organize news by topic, region, or interest
 - **Real-time Updates**: Automatically refreshes news every 5 minutes (can be disabled)
 - **Advanced Filtering**: Filter by language, category, date, or search keywords
-- **Responsive Design**: Works beautifully on desktop, tablet, and mobile devices
+- **Responsive Design**: Works beautifully on desktop and tablet devices
 - **Local Caching**: Articles are cached locally for faster loading
 
 ## News Sources
@@ -32,13 +32,27 @@ You can easily add, remove, or modify sources through the Settings page.
 
 ## Installation (Docker)
 
-The easiest way to run this application is using Docker. Make sure you have Docker and Docker Compose installed on your system.
+The easiest way to run this application is using Docker. Make sure you have Docker and Docker Compose V2 installed on your system.
 
 ### Quick Start
 
 1. **Clone or download this repository**
 
-2. **Build and start the application:**
+2. **Configure environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit the `.env` file and set the `HOST` variable:
+   - For local development: `HOST=localhost` (default)
+   - For production: Set `HOST` to your domain name (e.g., `HOST=news.example.com`)
+   
+   If you need to allow multiple hosts, use `ALLOWED_HOSTS` instead (comma-separated):
+   ```
+   ALLOWED_HOSTS=news.example.com,www.example.com
+   ```
+
+3. **Build and start the application:**
    ```bash
    ./build.sh
    ```
@@ -48,11 +62,12 @@ The easiest way to run this application is using Docker. Make sure you have Dock
    docker compose up -d --build
    ```
 
-3. **Access the application:**
+4. **Access the application:**
    Open your web browser and navigate to:
    ```
    http://localhost:3072
    ```
+   (Or use your configured domain if you set HOST to a domain name)
 
 That's it! The application is now running.
 
