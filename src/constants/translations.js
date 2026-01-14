@@ -11,10 +11,12 @@ export const translations = {
     source: 'Source',
     published: 'Published',
     noNews: 'No news available',
-    autoRefresh: 'Auto-refresh',
+    autoRefresh: 'Auto',
     categories: 'Categories',
     filterByCategory: 'Filter by Category',
     allCategories: 'All Categories',
+    searchCategories: 'Search categories...',
+    noCategoryResults: 'No categories found',
     noCategory: 'Uncategorized',
     sortBy: 'Sort by',
     sortDate: 'Date',
@@ -94,7 +96,9 @@ export const translations = {
     tabName: 'Tab Name',
     noTabs: 'No tabs configured',
     activeTab: 'Active Tab',
-    switchTab: 'Switch to this tab'
+    switchTab: 'Switch to this tab',
+    view: 'View',
+    filter: 'Filter'
   },
   fr: {
     title: 'Fil d\'actualités',
@@ -108,10 +112,12 @@ export const translations = {
     source: 'Source',
     published: 'Publié',
     noNews: 'Aucune actualité disponible',
-    autoRefresh: 'Actualisation automatique',
+    autoRefresh: 'Auto',
     categories: 'Catégories',
     filterByCategory: 'Filtrer par catégorie',
     allCategories: 'Toutes les catégories',
+    searchCategories: 'Rechercher des catégories...',
+    noCategoryResults: 'Aucune catégorie trouvée',
     noCategory: 'Sans catégorie',
     sortBy: 'Trier par',
     sortDate: 'Date',
@@ -191,6 +197,8 @@ export const translations = {
     tabName: 'Nom de l\'onglet',
     noTabs: 'Aucun onglet configuré',
     activeTab: 'Onglet actif',
-    switchTab: 'Basculer vers cet onglet'
+    switchTab: 'Basculer vers cet onglet',
+    view: 'Vue',
+    filter: 'Filtre'
   }
 }

@@ -38,7 +38,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
   const [selectedCountries, setSelectedCountries] = useState(new Set())
   const [availableCountries, setAvailableCountries] = useState([])
   const [countrySearchQuery, setCountrySearchQuery] = useState('')
-  const [showToastMessages, setShowToastMessages] = useState(true)
+  const [showToastMessages, setShowToastMessages] = useState(false)
   const searchTimeoutRef = useRef(null)
   const { success, error: showError, warning } = useToastContext()
   
@@ -98,7 +98,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
     
     // Load country filters from storage
     const preferences = loadSettingsPreferences()
-    setShowToastMessages(preferences.showToastMessages !== undefined ? preferences.showToastMessages : true)
+    setShowToastMessages(preferences.showToastMessages !== undefined ? preferences.showToastMessages : false)
     setSelectedCountries(preferences.selectedCountries)
     
     // Load available countries

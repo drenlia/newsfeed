@@ -45,6 +45,7 @@ export const SubHeader = ({
         <div className="controls-container">
         {/* Group 1: Language Filters */}
         <div className="control-group-section">
+          <span className="control-section-label">{t.view || 'View'}</span>
           <button 
             className={`filter-btn ${newsFilter === 'all' ? 'active' : ''}`}
             onClick={() => onNewsFilterChange('all')}
@@ -67,6 +68,7 @@ export const SubHeader = ({
 
         {/* Group 2: Category, Sort, Highly Rated */}
         <div className="control-group-section">
+          <span className="control-section-label">{t.filter || 'Filter'}</span>
           <CategoryDropdown
             uiLanguage={uiLanguage}
             selectedCategories={selectedCategories}
@@ -94,6 +96,7 @@ export const SubHeader = ({
 
         {/* Group 3: Refresh & Auto-refresh */}
         <div className="control-group-section">
+          <span className="control-section-label">{t.refresh || 'Refresh'}</span>
           <button
             className="refresh-btn-compact"
             onClick={onRefresh}
@@ -114,6 +117,7 @@ export const SubHeader = ({
 
         {/* Group 4: Search & Clear All */}
         <div className="control-group-section">
+          <span className="control-section-label">{t.searchArticles || 'Search'}</span>
           <div className="search-input-wrapper">
             <input
               type="text"

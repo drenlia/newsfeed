@@ -27,14 +27,14 @@ function AppContent() {
   const [activeTabId, setActiveTabIdState] = useState(null)
   const [tabs, setTabs] = useState([])
   const [subheaderCollapsed, setSubheaderCollapsed] = useState(false)
-  const [showToastMessages, setShowToastMessages] = useState(true)
+  const [showToastMessages, setShowToastMessages] = useState(false)
 
   // Load tabs on mount and read active tab from URL or localStorage
   useEffect(() => {
     // Load subheader collapsed state and toast messages preference from preferences
     const preferences = loadSettingsPreferences()
     setSubheaderCollapsed(preferences.subheaderCollapsed || false)
-    setShowToastMessages(preferences.showToastMessages !== undefined ? preferences.showToastMessages : true)
+    setShowToastMessages(preferences.showToastMessages !== undefined ? preferences.showToastMessages : false)
     
     const loadedTabs = loadTabs()
     setTabs(loadedTabs)

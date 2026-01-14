@@ -47,7 +47,7 @@ export const NewsItem = ({ item, uiLanguage, isNew, combinedCategories, onCatego
               <span className="news-date">{formatDateLocalized(item.publishedAt)}</span>
               {item.popularityScore > 0 && (
                 <span className="popularity-badge" title="Popularity Score">
-                  ⭐ {item.popularityScore}
+                  {item.popularityScore}
                 </span>
               )}
             </div>

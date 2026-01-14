@@ -9,7 +9,7 @@ export const loadSettingsPreferences = () => {
       return {
         selectedCountries: new Set(parsed.selectedCountries || []),
         subheaderCollapsed: parsed.subheaderCollapsed || false,
-        showToastMessages: parsed.showToastMessages !== undefined ? parsed.showToastMessages : true,
+        showToastMessages: parsed.showToastMessages !== undefined ? parsed.showToastMessages : false,
         // Add other preferences here as needed
       }
     }
@@ -20,7 +20,7 @@ export const loadSettingsPreferences = () => {
   return {
     selectedCountries: new Set(),
     subheaderCollapsed: false,
-    showToastMessages: true, // Default to showing toast messages
+    showToastMessages: false, // Default to hiding toast messages
   }
 }
 

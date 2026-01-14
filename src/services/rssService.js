@@ -34,13 +34,73 @@ const stripHtmlTags = (html) => {
 const extractCategories = (item, source) => {
   const categories = []
   
+  // Helper function to check if a category is a valid category (not metadata/technical)
+  // Filters out UUIDs, GUIDs, metadata fields, and other non-category identifiers
+  const isValidCategory = (text) => {
+    const trimmed = text.trim()
+    if (!trimmed) return false
+    
+    // Exclude UUID/GUID patterns (8-4-4-4-12 hex digits with hyphens)
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+    if (uuidPattern.test(trimmed)) {
+      return false
+    }
+    
+    // Exclude if it's all hex digits and hyphens (no actual words)
+    if (/^[0-9a-f\-]+$/i.test(trimmed) && trimmed.length > 10) {
+      return false
+    }
+    
+    // Exclude metadata field names (contains "metadata", "taxonomy", "section-path", "content-type")
+    const metadataPatterns = [
+      /metadata/i,
+      /taxonomy/i,
+      /section-path/i,
+      /content-type/i,
+      /dc\.(identifier|source|subject)/i,
+      /prism\./i,
+      /^[a-z0-9-]+\.com\//i, // URLs like "foxnews.com/metadata/..."
+    ]
+    if (metadataPatterns.some(pattern => pattern.test(trimmed))) {
+      return false
+    }
+    
+    // Exclude very short categories (less than 3 characters) unless they're common category words
+    const commonShortCategories = ['us', 'uk', 'ca', 'fr', 'en', 'de', 'it', 'es', 'pt', 'ru', 'cn', 'jp']
+    if (trimmed.length < 3 && !commonShortCategories.includes(trimmed.toLowerCase())) {
+      return false
+    }
+    
+    // Exclude common non-category words
+    const nonCategoryWords = [
+      'article', 'fnc', 'rss', 'xml', 'feed', 'item', 'post', 'entry',
+      'page', 'url', 'link', 'id', 'guid', 'pubdate', 'date'
+    ]
+    if (nonCategoryWords.includes(trimmed.toLowerCase())) {
+      return false
+    }
+    
+    // Exclude if it's just a domain or looks like a technical path
+    // Patterns like "foxnews.com/something" or just domain names
+    if (/^[a-z0-9-]+\.(com|org|net|edu|gov|io|co)\/?/i.test(trimmed) && !trimmed.includes('/')) {
+      return false
+    }
+    
+    // Must contain at least one letter (a-z, A-Z)
+    if (!/[a-zA-Z]/.test(trimmed)) {
+      return false
+    }
+    
+    return true
+  }
+  
   // Standard RSS category
   item.querySelectorAll('category').forEach(cat => {
     const catText = decodeHtmlEntities(cat.textContent?.trim() || '')
-    if (catText) categories.push(catText)
+    if (catText && isValidCategory(catText)) categories.push(catText)
     // Also check domain attribute (some feeds use category domain="...")
     const domain = cat.getAttribute('domain')
-    if (domain && !categories.includes(domain)) {
+    if (domain && isValidCategory(domain) && !categories.includes(domain)) {
       categories.push(domain)
     }
   })
@@ -48,20 +108,20 @@ const extractCategories = (item, source) => {
   // Dublin Core subject
   item.querySelectorAll('dc\\:subject').forEach(cat => {
     const catText = decodeHtmlEntities(cat.textContent?.trim() || '')
-    if (catText && !categories.includes(catText)) categories.push(catText)
+    if (catText && isValidCategory(catText) && !categories.includes(catText)) categories.push(catText)
   })
   
   // Media RSS category
   item.querySelectorAll('media\\:category').forEach(cat => {
     const catText = decodeHtmlEntities(cat.textContent?.trim() || '')
-    if (catText && !categories.includes(catText)) categories.push(catText)
+    if (catText && isValidCategory(catText) && !categories.includes(catText)) categories.push(catText)
   })
   
   // Check for categories in other namespaces
   Array.from(item.children).forEach(child => {
     if (child.localName === 'category') {
       const catText = decodeHtmlEntities(child.textContent?.trim() || '')
-      if (catText && !categories.includes(catText)) categories.push(catText)
+      if (catText && isValidCategory(catText) && !categories.includes(catText)) categories.push(catText)
     }
   })
   
@@ -71,7 +131,7 @@ const extractCategories = (item, source) => {
   if (tags) {
     tags.split(',').forEach(tag => {
       const tagText = tag.trim()
-      if (tagText && !categories.includes(tagText)) {
+      if (tagText && isValidCategory(tagText) && !categories.includes(tagText)) {
         categories.push(tagText)
       }
     })
