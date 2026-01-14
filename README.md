@@ -71,6 +71,26 @@ The easiest way to run this application is using Docker. Make sure you have Dock
 
 That's it! The application is now running.
 
+### Production Deployment (Recommended)
+
+**It is strongly recommended to run the application behind a reverse proxy (nginx) with SSL/TLS encryption.** This helps avoid CORS issues and security problems when fetching RSS feeds from external sources.
+
+1. **Set up nginx reverse proxy:**
+   - Use the provided `nginx.example.conf` as a template
+   - Configure it with your domain name
+   - Place it in your nginx `sites-available` directory and symlink to `sites-enabled`
+
+2. **Enable SSL/TLS with Let's Encrypt:**
+   - Follow the [Let's Encrypt documentation](https://letsencrypt.org/getting-started/) to obtain a free SSL certificate
+   - Update your nginx configuration to use the SSL certificates
+   - The example configuration includes commented SSL settings to guide you
+
+3. **Update your `.env` file:**
+   - Set `HOST` to your actual domain name (e.g., `HOST=news.example.com`)
+   - This ensures Vite allows requests from your domain
+
+This setup ensures secure communication and prevents issues when fetching RSS feeds from various sources.
+
 ### Managing the Application
 
 **View logs:**
