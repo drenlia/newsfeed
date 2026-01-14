@@ -14,9 +14,8 @@
 }
 
 .header-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 15px 30px;
+  margin: 0 50px;
+  padding: 15px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -98,9 +97,8 @@
 }
 
 .tab-nav-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 30px;
+  margin: 0 50px;
+  padding: 0;
   display: flex;
   gap: 8px;
   overflow-x: auto;
@@ -133,16 +131,63 @@
   box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
 }
 
+.tab-nav-item-editing {
+  background: white !important;
+  border: 2px solid #667eea !important;
+  border-bottom-color: #667eea !important;
+  outline: none;
+  padding: 8px 18px;
+  font-size: 0.95em;
+  font-weight: 500;
+  color: #333;
+  min-width: 100px;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
+}
+
 /* Sticky Sub Header */
 .sub-header {
   position: sticky;
   top: 70px; /* Default position */
-  z-index: 99;
-  background: white;
+  z-index: 101;
+  background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   border-bottom: 1px solid #e8e8e8;
   backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.98);
+  margin: 0 50px;
+}
+
+.sub-header-toggle {
+  position: absolute;
+  right: 20px;
+  top: -20px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 20px 20px 0 0;
+  padding: 4px 12px;
+  cursor: pointer;
+  font-size: 0.9em;
+  color: #666;
+  z-index: 102;
+  transition: all 0.2s;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sub-header-toggle:hover {
+  background: #f5f5f5;
+  color: #333;
+}
+
+.sub-header-toggle .chevron {
+  display: inline-block;
+  transition: transform 0.2s;
+}
+
+.sub-header.collapsed {
+  min-height: 0;
+}
+
+.sub-header.collapsed .controls-container {
+  display: none;
 }
 
 /* Adjust sub-header position when tabs are present */
@@ -151,9 +196,8 @@
 }
 
 .controls-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 12px 30px;
+  margin: 0;
+  padding: 12px 0;
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
@@ -171,9 +215,8 @@
 }
 
 .main {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 30px;
+  margin: 0 50px;
+  padding: 30px 0;
 }
 
 .header-top {
@@ -602,9 +645,8 @@
 }
 
 .main {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 30px;
+  margin: 0 50px;
+  padding: 30px 0;
 }
 
 .loading,
@@ -883,12 +925,11 @@
 .settings-page {
   min-height: calc(100vh - 70px);
   background: #f5f5f5;
-  padding: 30px;
+  padding: 30px 50px;
 }
 
 .settings-layout {
-  max-width: 1600px;
-  margin: 0 auto;
+  margin: 0;
   display: flex;
   gap: 30px;
 }
@@ -911,6 +952,49 @@
   color: #333;
   font-size: 1.1em;
   font-weight: 600;
+}
+
+.country-search-container {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.country-search-input {
+  width: 100%;
+  padding: 8px 30px 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.9em;
+  box-sizing: border-box;
+}
+
+.country-search-input:focus {
+  outline: none;
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.1);
+}
+
+.country-search-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  color: #999;
+  cursor: pointer;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.country-search-clear:hover {
+  color: #333;
 }
 
 .country-pills-vertical {
@@ -1727,6 +1811,12 @@
   font-size: 1.1em;
 }
 
+.column-header .header-buttons {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 /* Compact Sources List */
 .sources-list-container {
   max-height: 600px;
@@ -2074,7 +2164,8 @@
   }
 
   .header-content {
-    padding: 10px 15px;
+    margin: 0 20px;
+    padding: 10px 0;
     flex-wrap: wrap;
   }
 
@@ -2087,8 +2178,24 @@
   }
 
   .controls-container {
-    padding: 10px 15px;
+    padding: 10px 0;
     gap: 10px;
+  }
+  
+  .sub-header {
+    margin: 0 20px;
+  }
+  
+  .tab-nav-container {
+    margin: 0 20px;
+  }
+  
+  .main {
+    margin: 0 20px;
+  }
+  
+  .settings-page {
+    padding: 30px 20px;
   }
 
   .control-group-section {

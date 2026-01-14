@@ -1,5 +1,5 @@
 // Service to discover RSS feeds for a given city
-import { getCorsProxy } from '../constants/cors'
+// Backend proxy is used instead of CORS proxies
 
 // Known news sources by country/region (can be expanded)
 const KNOWN_NEWS_DOMAINS = {
@@ -51,35 +51,11 @@ const tryDiscoverRss = async (baseUrl, sourceName) => {
       let response = null
       let text = null
       
-      // Try direct access first
+      // Use backend proxy to avoid CORS issues
       try {
+        const proxyUrl = `/api/proxy/rss?url=${encodeURIComponent(testUrl)}`
         const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 2000)
-        
-        response = await fetch(testUrl, {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/rss+xml, application/xml, text/xml, */*'
-          },
-          mode: 'cors'
-        })
-        
-        clearTimeout(timeoutId)
-        
-        if (response && response.ok) {
-          text = await response.text()
-        }
-      } catch (directError) {
-        // Direct access failed, try proxy
-      }
-      
-      // If direct failed, try proxy
-      if (!text) {
-        const proxyUrl = getCorsProxy(testUrl, 0)
-        if (!proxyUrl) continue
-        
-        const controller = new AbortController()
-        const timeoutId = setTimeout(() => controller.abort(), 2000)
+        const timeoutId = setTimeout(() => controller.abort(), 5000)
         
         response = await fetch(proxyUrl, {
           signal: controller.signal,
@@ -93,6 +69,9 @@ const tryDiscoverRss = async (baseUrl, sourceName) => {
         if (response && response.ok) {
           text = await response.text()
         }
+      } catch (error) {
+        // Proxy failed, continue to next path
+        continue
       }
       
       if (text) {
@@ -136,7 +115,6 @@ export const discoverRssFeedsForCity = async (city) => {
     .filter(outlet => !cityOutletUrls.has(outlet.url))
   
   if (cityOutlets.length > 0 || nationalOutlets.length > 0) {
-    console.log(`[Discovery] Found ${cityOutlets.length} city-specific and ${nationalOutlets.length} national outlets for ${normalizedCityName}`)
     
     // Add city-specific feeds
     cityOutlets.forEach(outlet => {
@@ -202,7 +180,6 @@ export const discoverRssFeedsForCity = async (city) => {
   // Strategy 4: NewsAPI (requires API key - optional)
   // Can be added if user provides API key
   
-  console.log(`[Discovery] Found ${discoveredFeeds.length} RSS feeds for ${normalizedCityName}`)
   return discoveredFeeds
 }
 
@@ -244,35 +221,11 @@ export const validateRssFeed = async (url) => {
     let response = null
     let text = null
     
-    // Try direct access first
+    // Use backend proxy to avoid CORS issues
     try {
+      const proxyUrl = `/api/proxy/rss?url=${encodeURIComponent(url)}`
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 3000)
-      
-      response = await fetch(url, {
-        signal: controller.signal,
-        headers: {
-          'Accept': 'application/rss+xml, application/xml, text/xml, */*'
-        },
-        mode: 'cors'
-      })
-      
-      clearTimeout(timeoutId)
-      
-      if (response && response.ok) {
-        text = await response.text()
-      }
-    } catch (directError) {
-      // Direct access failed, try proxy
-    }
-    
-    // If direct failed, try proxy
-    if (!text) {
-      const proxyUrl = getCorsProxy(url, 0)
-      if (!proxyUrl) return { valid: false, error: 'No CORS proxy available' }
-      
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 3000)
+      const timeoutId = setTimeout(() => controller.abort(), 5000)
       
       response = await fetch(proxyUrl, {
         signal: controller.signal,
@@ -288,6 +241,8 @@ export const validateRssFeed = async (url) => {
       }
       
       text = await response.text()
+    } catch (error) {
+      return { valid: false, error: error.message || 'Failed to fetch feed' }
     }
     
     if (!text) {

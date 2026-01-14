@@ -1,4 +1,4 @@
-import { getCorsProxy, CORS_PROXIES } from '../constants/cors'
+// Backend proxy is used instead of CORS proxies
 
 // Decode HTML entities in text
 const decodeHtmlEntities = (text) => {
@@ -8,6 +8,26 @@ const decodeHtmlEntities = (text) => {
   const textarea = document.createElement('textarea')
   textarea.innerHTML = text
   return textarea.value
+}
+
+// Strip HTML tags from text and decode entities
+const stripHtmlTags = (html) => {
+  if (!html) return ''
+  
+  // First decode HTML entities
+  let text = decodeHtmlEntities(html)
+  
+  // Create a temporary div to parse HTML and extract text
+  const tempDiv = document.createElement('div')
+  tempDiv.innerHTML = text
+  
+  // Get text content (this automatically strips HTML tags)
+  let plainText = tempDiv.textContent || tempDiv.innerText || ''
+  
+  // Clean up extra whitespace
+  plainText = plainText.replace(/\s+/g, ' ').trim()
+  
+  return plainText
 }
 
 // Extract categories from RSS item
@@ -163,9 +183,6 @@ const extractThumbnail = (item, description) => {
     }
   } catch (e) {
     // If scanning fails, continue to return empty string
-    if (process.env.NODE_ENV === 'development') {
-      console.debug('[extractThumbnail] Error scanning for type="image" elements:', e)
-    }
   }
   
   return ''
@@ -173,16 +190,108 @@ const extractThumbnail = (item, description) => {
 
 // Parse RSS item into news article object
 const parseRssItem = (item, source) => {
-  const title = decodeHtmlEntities(item.querySelector('title')?.textContent || '')
+  // Get title - try multiple methods
+  // Some feeds (like UOL) don't have title elements, use description as fallback
+  const titleElement = item.querySelector('title')
+  let title = ''
+  if (titleElement) {
+    // Try textContent first (handles CDATA automatically)
+    title = titleElement.textContent || ''
+    // If empty, try innerHTML (might be CDATA or HTML)
+    if (!title && titleElement.innerHTML) {
+      title = stripHtmlTags(titleElement.innerHTML)
+    }
+    // If still empty, try innerText as fallback
+    if (!title && titleElement.innerText) {
+      title = titleElement.innerText
+    }
+    title = decodeHtmlEntities(title.trim())
+  }
+  
   const link = item.querySelector('link')?.textContent || ''
   const pubDate = item.querySelector('pubDate')?.textContent || ''
-  let description = decodeHtmlEntities(item.querySelector('description')?.textContent || '')
+  
+  // Get description - handle both textContent (plain text) and innerHTML (HTML content)
+  // Also handle CDATA sections which textContent handles automatically
+  const descriptionElement = item.querySelector('description')
+  let description = ''
+  if (descriptionElement) {
+    // Try textContent first (handles CDATA automatically)
+    let descText = descriptionElement.textContent || ''
+    let descInnerHTML = descriptionElement.innerHTML || ''
+    
+    // If textContent is empty but innerHTML exists, use innerHTML
+    if (!descText && descInnerHTML) {
+      // Check if innerHTML contains CDATA markers - strip them
+      if (descInnerHTML.includes('<![CDATA[')) {
+        descText = descInnerHTML.replace(/<!\[CDATA\[(.*?)\]\]>/g, '$1')
+      } else {
+        descText = descInnerHTML
+      }
+    }
+    
+    // Check if description contains HTML
+    if (descInnerHTML && descInnerHTML !== descText && descInnerHTML.includes('<') && !descInnerHTML.includes('<![CDATA[')) {
+      description = stripHtmlTags(descInnerHTML)
+    } else if (descText) {
+      description = decodeHtmlEntities(descText)
+    }
+    
+    // Final fallback - try innerText
+    if (!description && descriptionElement.innerText) {
+      description = decodeHtmlEntities(descriptionElement.innerText)
+    }
+    
+    // Last resort - try to get text from child nodes
+    if (!description && descriptionElement.childNodes.length > 0) {
+      const textNodes = Array.from(descriptionElement.childNodes)
+        .filter(node => node.nodeType === Node.TEXT_NODE || node.nodeType === Node.CDATA_SECTION_NODE)
+        .map(node => node.textContent || node.nodeValue || '')
+        .join('')
+      if (textNodes) {
+        description = decodeHtmlEntities(textNodes.trim())
+      }
+    }
+    
+    description = description.trim()
+  }
+  
+  // If no title but we have description, use description as title (UOL feed pattern)
+  if (!title && description) {
+    title = description
+    // For UOL, also try to get content:encoded as description
+    const contentElement = item.querySelector('content\\:encoded') || item.querySelector('encoded')
+    if (contentElement) {
+      const contentText = contentElement.textContent || ''
+      const contentInnerHTML = contentElement.innerHTML || ''
+      if (contentInnerHTML && contentInnerHTML.includes('<')) {
+        description = stripHtmlTags(contentInnerHTML)
+      } else if (contentText) {
+        description = decodeHtmlEntities(contentText)
+      }
+      description = description.trim()
+    } else {
+      description = '' // Don't duplicate in description if no content
+    }
+  }
+  
   const guid = item.querySelector('guid')?.textContent || ''
   const author = decodeHtmlEntities(item.querySelector('author')?.textContent || 
                item.querySelector('dc\\:creator')?.textContent ||
                item.querySelector('creator')?.textContent || '')
-  let content = decodeHtmlEntities(item.querySelector('content\\:encoded')?.textContent || 
-                item.querySelector('encoded')?.textContent || '')
+  
+  // Get content - handle both textContent and innerHTML
+  const contentElement = item.querySelector('content\\:encoded') || item.querySelector('encoded')
+  let content = ''
+  if (contentElement) {
+    const contentText = contentElement.textContent || ''
+    const contentInnerHTML = contentElement.innerHTML || ''
+    if (contentInnerHTML !== contentText && contentInnerHTML.includes('<')) {
+      content = stripHtmlTags(contentInnerHTML)
+    } else {
+      content = decodeHtmlEntities(contentText)
+    }
+  }
   
   // Limit content size to prevent memory issues (max 50KB per field)
   const MAX_CONTENT_SIZE = 50 * 1024 // 50KB
@@ -214,7 +323,6 @@ const parseRssItem = (item, source) => {
   
   // Debug logging for thumbnails (only in development)
   if (process.env.NODE_ENV === 'development' && thumbnail) {
-    console.log(`[${source.name}] Thumbnail found:`, thumbnail.substring(0, 80))
   }
   
   // Extract popularity metrics from RSS if available
@@ -285,6 +393,7 @@ const parseRssItem = (item, source) => {
 }
 
 // Fetch RSS feed from a single source
+// Returns { news: [], error: { name, message, status } | null }
 export const fetchRssFeed = async (source) => {
   const sourceNews = []
   
@@ -292,115 +401,104 @@ export const fetchRssFeed = async (source) => {
     let response = null
     let text = null
     
-    // Try direct access first (much faster if CORS allows it)
+    // Use backend proxy to avoid CORS issues
+    // The backend server fetches RSS feeds server-side, avoiding browser CORS restrictions
     try {
+      const proxyUrl = `/api/proxy/rss?url=${encodeURIComponent(source.url)}`
       const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 3000) // 3 second timeout for direct access
+      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
       
-      response = await fetch(source.url, {
+      response = await fetch(proxyUrl, {
         signal: controller.signal,
         headers: {
           'Accept': 'application/rss+xml, application/xml, text/xml, */*'
-        },
-        mode: 'cors' // Explicitly request CORS
+        }
       })
       
       clearTimeout(timeoutId)
       
-      if (response && response.ok) {
-        const directText = await response.text()
-        
-        // Validate it's actually XML/RSS
-        const trimmedText = directText.trim()
-        if (trimmedText.includes('<rss') || 
-            trimmedText.includes('<feed') || 
-            trimmedText.includes('<?xml') ||
-            trimmedText.includes('<RDF')) {
-          text = directText
-          console.log(`[${source.name}] ✓ Direct access successful!`)
-        } else {
-          // Got response but not XML, try proxies
-          if (process.env.NODE_ENV === 'development') {
-            console.debug(`[${source.name}] Direct access returned non-XML, trying proxies...`)
-          }
-        }
-      }
-    } catch (directError) {
-      // Direct access failed (likely CORS), try proxies
-      // This is expected for many feeds, so we don't log it
-    }
-    
-    // If direct access failed, try CORS proxies
-    if (!text) {
-      for (let proxyIndex = 0; proxyIndex < CORS_PROXIES.length; proxyIndex++) {
+      if (!response || !response.ok) {
+        let errorData = { message: 'Unknown error' }
         try {
-          const proxyUrl = getCorsProxy(source.url, proxyIndex)
-          if (!proxyUrl) break
-          
-          const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 4000)
-          
-          response = await fetch(proxyUrl, {
-            signal: controller.signal,
-            headers: {
-              'Accept': 'application/rss+xml, application/xml, text/xml, */*'
-            }
-          })
-          
-          clearTimeout(timeoutId)
-          
-          if (!response || !response.ok) {
-            continue // Try next proxy
-          }
-          
-          // Got a response, check if it's valid XML
-          text = await response.text()
-          
-          if (!text || text.trim().length === 0) {
-            continue // Try next proxy
-          }
-          
-          // Check if response is HTML (error page) instead of XML
-          const trimmedText = text.trim()
-          if (trimmedText.startsWith('<!DOCTYPE') || 
-              trimmedText.startsWith('<html') || 
-              (trimmedText.includes('<!DOCTYPE') && !trimmedText.includes('<rss') && !trimmedText.includes('<feed'))) {
-            continue // Try next proxy
-          }
-          
-          // Check if it's actually XML/RSS
-          if (!trimmedText.includes('<rss') && 
-              !trimmedText.includes('<feed') && 
-              !trimmedText.includes('<?xml') &&
-              !trimmedText.includes('<RDF')) {
-            continue // Try next proxy
-          }
-          
-          // We have valid-looking XML, break out of proxy loop
-          break
-          
-        } catch (err) {
-          // Network error, timeout, or DNS error - try next proxy silently
-          if (err.name === 'AbortError' || 
-              err.message?.includes('ERR_NAME_NOT_RESOLVED') ||
-              err.message?.includes('Failed to fetch') ||
-              err.message?.includes('NetworkError')) {
-            continue
-          }
-          continue
+          const errorText = await response.text()
+          errorData = JSON.parse(errorText)
+        } catch (e) {
+          errorData = { message: `HTTP ${response?.status || 'Unknown'}` }
         }
+        
+        const error = {
+          name: source.name,
+          message: errorData.error || errorData.message || `HTTP ${response?.status}`,
+          status: response?.status || 500
+        }
+        
+        console.warn(`[${source.name}] Backend proxy failed (${error.status}): ${error.message}`)
+        return { news: sourceNews, error }
       }
+      
+      text = await response.text()
+      
+      // Validate it's actually XML/RSS
+      const trimmedText = text.trim()
+      if (!trimmedText.includes('<rss') && 
+          !trimmedText.includes('<feed') && 
+          !trimmedText.includes('<?xml') &&
+          !trimmedText.includes('<RDF')) {
+        console.warn(`[${source.name}] Backend proxy returned non-XML content`)
+        const error = {
+          name: source.name,
+          message: 'Invalid RSS feed format',
+          status: 500
+        }
+        return { news: sourceNews, error }
+      }
+      
+      
+    } catch (err) {
+      // Backend proxy failed
+      const error = {
+        name: source.name,
+        message: err.name === 'AbortError' ? 'Request timeout' : (err.message || 'Network error'),
+        status: err.name === 'AbortError' ? 504 : 500
+      }
+      
+      if (err.name === 'AbortError') {
+        console.warn(`[${source.name}] Backend proxy request timeout`)
+      } else {
+        console.warn(`[${source.name}] Backend proxy error: ${err.message || err}`)
+      }
+      return { news: sourceNews, error }
     }
     
-    // If we don't have text at this point, all proxies failed
+    // If we don't have text at this point, proxy failed
     if (!text) {
-      console.warn(`[${source.name}] All CORS proxies failed. Try accessing the feed directly: ${source.url}`)
-      return sourceNews
+      const error = {
+        name: source.name,
+        message: 'Empty response',
+        status: 500
+      }
+      console.warn(`[${source.name}] Failed to fetch feed: ${source.url}`)
+      return { news: sourceNews, error }
     }
     
     // Parse the XML we got
+    // The server now sends Content-Type with charset=utf-8 and normalizes XML declaration
+    // Ensure the XML declaration specifies UTF-8 for proper character encoding
+    let xmlText = text
+    if (xmlText.trim().startsWith('<?xml')) {
+      // Ensure encoding is UTF-8 in XML declaration
+      xmlText = xmlText.replace(
+        /<\?xml\s+version=["']([^"']+)["'](\s+encoding=["'][^"']+["'])?/i,
+        '<?xml version="$1" encoding="UTF-8"'
+      )
+    } else {
+      // No XML declaration, add one with UTF-8
+      xmlText = '<?xml version="1.0" encoding="UTF-8"?>\n' + xmlText
+    }
+    
     const parser = new DOMParser()
-    const xmlDoc = parser.parseFromString(text, 'text/xml')
+    // DOMParser will use the encoding specified in the XML declaration (UTF-8)
+    const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
     
     const parseError = xmlDoc.querySelector('parsererror')
     if (parseError) {
@@ -412,7 +510,6 @@ export const fetchRssFeed = async (source) => {
           const errorText = parseError.textContent || ''
           // Don't log if we can still extract items (some feeds have minor XML issues)
           if (!errorText.includes('mismatch') && !errorText.includes('invalid')) {
-            console.debug(`[${source.name}] XML parse warning (continuing anyway)`)
           }
         }
         return sourceNews
@@ -433,16 +530,32 @@ export const fetchRssFeed = async (source) => {
     if (sourceNews.length === 0 && items.length > 0) {
       // We parsed items but they were filtered out (likely date filter)
       console.warn(`[${source.name}] Parsed ${items.length} items but none matched the date filter (last 24 hours)`)
+      // Log the dates of the first few items to help debug
+      const sampleDates = Array.from(items).slice(0, 3).map(item => {
+        const pubDate = item.querySelector('pubDate')?.textContent || 
+                      item.querySelector('published')?.textContent || 
+                      item.querySelector('dc\\:date')?.textContent || 
+                      'No date found'
+        return pubDate
+      })
+      console.warn(`[${source.name}] Sample article dates:`, sampleDates)
     } else if (sourceNews.length > 0) {
-      console.log(`[${source.name}] Successfully fetched ${sourceNews.length} articles`)
+    } else if (items.length === 0) {
+      console.warn(`[${source.name}] Feed contains no items`)
     }
     
-    return sourceNews
+    return { news: sourceNews, error: null }
   } catch (err) {
     // Only log unexpected errors (not timeouts, which are handled in the loop)
+    const error = {
+      name: source.name,
+      message: err.message || 'Unexpected error',
+      status: 500
+    }
+    
     if (err.name !== 'AbortError' && process.env.NODE_ENV === 'development') {
       console.debug(`[${source.name}] Unexpected error:`, err.message || err)
     }
-    return sourceNews
+    return { news: sourceNews, error }
   }
 }

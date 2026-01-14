@@ -138,23 +138,13 @@ const detectType = (title, category) => {
  */
 export const fetchAndParseOPML = async (url) => {
   try {
-    // Try direct access first
-    let response = null
-    try {
-      response = await fetch(url, {
-        headers: {
-          'Accept': 'application/xml, text/xml, */*'
-        },
-        mode: 'cors'
-      })
-    } catch (directError) {
-      // If direct fails, try with CORS proxy
-      const { getCorsProxy } = await import('../constants/cors')
-      const proxyUrl = getCorsProxy(url, 0)
-      if (proxyUrl) {
-        response = await fetch(proxyUrl)
+    // Use backend proxy to avoid CORS issues
+    const proxyUrl = `/api/proxy/rss?url=${encodeURIComponent(url)}`
+    const response = await fetch(proxyUrl, {
+      headers: {
+        'Accept': 'application/xml, text/xml, */*'
       }
-    }
+    })
     
     if (!response || !response.ok) {
       throw new Error(`Failed to fetch OPML: ${response?.status || 'Unknown error'}`)

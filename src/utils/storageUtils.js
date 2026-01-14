@@ -146,8 +146,11 @@ export const clearCachedNews = (tabId = null) => {
 // Save news to cache (now supports tab-aware caching)
 export const saveNewsToCache = (newsData, tabId = null) => {
   try {
+    // Extract article IDs for tracking "new" articles
+    const articleIds = newsData.map(item => item.id)
     const cacheData = {
       news: newsData,
+      articleIds: articleIds, // Store IDs separately for quick access
       timestamp: Date.now()
     }
     
@@ -163,10 +166,12 @@ export const saveNewsToCache = (newsData, tabId = null) => {
     console.warn('Failed to save news to cache:', err)
     // If localStorage is full, try to clear old cache
     try {
+      const articleIds = newsData.map(item => item.id)
       if (tabId) {
         localStorage.removeItem(`newsfeed-cache-tab-${tabId}`)
         const cacheData = {
           news: newsData,
+          articleIds: articleIds,
           timestamp: Date.now()
         }
         localStorage.setItem(`newsfeed-cache-tab-${tabId}`, JSON.stringify(cacheData))
@@ -174,6 +179,7 @@ export const saveNewsToCache = (newsData, tabId = null) => {
         localStorage.removeItem('newsfeed-cache')
         const cacheData = {
           news: newsData,
+          articleIds: articleIds,
           timestamp: Date.now()
         }
         localStorage.setItem('newsfeed-cache', JSON.stringify(cacheData))
@@ -182,4 +188,32 @@ export const saveNewsToCache = (newsData, tabId = null) => {
       console.error('Failed to clear and save cache:', e)
     }
   }
+}
+
+// Load cached article IDs (for tracking new articles across page refreshes)
+export const loadCachedArticleIds = (tabId = null) => {
+  try {
+    if (tabId) {
+      const tabCacheKey = `newsfeed-cache-tab-${tabId}`
+      const cached = localStorage.getItem(tabCacheKey)
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (parsed.articleIds && Array.isArray(parsed.articleIds)) {
+          return new Set(parsed.articleIds)
+        }
+      }
+    } else {
+      // Fallback to legacy cache
+      const cached = localStorage.getItem('newsfeed-cache')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        if (parsed.articleIds && Array.isArray(parsed.articleIds)) {
+          return new Set(parsed.articleIds)
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('Failed to load cached article IDs:', err)
+  }
+  return new Set()
 }

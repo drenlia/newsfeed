@@ -1,62 +1,141 @@
-# Montreal News Feed
+# News Feed Application
 
-A bilingual (French/English) news aggregator web application that displays the latest news from Montreal, QC, Canada.
+A modern, bilingual news aggregator that brings together the latest articles from multiple sources in one convenient place. The application automatically fetches news from RSS feeds, displays them in an easy-to-read format, and lets you organize your reading with customizable tabs.
 
 ## Features
 
-- 🌐 **Bilingual Interface**: Auto-detects browser language and allows manual toggle between French (FR) and English (EN)
-- 📰 **Multi-source News**: Aggregates news from both French and English sources
-- 🔍 **Smart Filtering**: Filter news by language (All, French only, English only)
-- 🔄 **Auto-refresh**: Automatically refreshes news every 5 minutes (toggleable)
-- 📱 **Responsive Design**: Works on desktop and mobile devices
+- **Bilingual Interface**: Switch between French and English with a single click
+- **Multiple News Sources**: Aggregates articles from various news outlets
+- **Smart Organization**: Create custom tabs to organize news by topic, region, or interest
+- **Real-time Updates**: Automatically refreshes news every 5 minutes (can be disabled)
+- **Advanced Filtering**: Filter by language, category, date, or search keywords
+- **Responsive Design**: Works beautifully on desktop, tablet, and mobile devices
+- **Local Caching**: Articles are cached locally for faster loading
 
 ## News Sources
 
-The application pulls news from various Montreal-based sources:
+The application comes pre-configured with the following sources:
 
 **English Sources:**
 - CBC Montreal
 - Montreal Gazette
-- CTV News Montreal
 
 **French Sources:**
-- Radio-Canada Montréal
+- Radio-Canada En-bref
 - La Presse
 - Le Devoir
 - Journal de Montréal
 
-## Getting Started
+You can easily add, remove, or modify sources through the Settings page.
 
-### Installation
+## Installation (Docker)
 
+The easiest way to run this application is using Docker. Make sure you have Docker and Docker Compose installed on your system.
+
+### Quick Start
+
+1. **Clone or download this repository**
+
+2. **Build and start the application:**
+   ```bash
+   ./build.sh
+   ```
+   
+   Or manually:
+   ```bash
+   docker compose up -d --build
+   ```
+
+3. **Access the application:**
+   Open your web browser and navigate to:
+   ```
+   http://localhost:3072
+   ```
+
+That's it! The application is now running.
+
+### Managing the Application
+
+**View logs:**
 ```bash
-npm install
+docker compose logs -f newsfeed
 ```
 
-### Development
-
+**Stop the application:**
 ```bash
-npm run dev
+docker compose down
 ```
 
-The application will be available at `http://localhost:5173`
-
-### Building for Production
-
+**Restart the application:**
 ```bash
-npm run build
+docker compose restart
 ```
 
-## Configuration
+**Rebuild after making changes:**
+```bash
+docker compose up -d --build
+```
 
-Edit `src/news.json` to add or modify RSS feed sources. Each source should have:
-- `name`: Display name of the source
-- `url`: RSS feed URL
-- `language`: `"en"` or `"fr"`
-- `region`: Region identifier (e.g., "Montreal")
+## Using the Application
 
-## Notes
+### Creating Tabs
 
-- The app uses a CORS proxy service to fetch RSS feeds. For production, consider setting up your own backend proxy.
-- News items are sorted by publication date (most recent first).
-- Language badges (FR/EN) indicate the language of each news article.
+You can create multiple tabs to organize different sets of news sources. For example:
+- Create a "Local News" tab with Montreal-specific sources
+- Create a "International" tab with global news sources
+- Create a "Technology" tab with tech-focused sources
+
+### Adding News Sources
+
+1. Click the **Settings** button in the top right
+2. Use the search to find news sources by outlet name, city, or country
+3. Select sources and click **Add Selected**
+4. Sources are automatically saved to your current tab
+
+### Customizing Your Experience
+
+- **Language Filter**: Show all news, French only, or English only
+- **Category Filter**: Filter articles by topic (Politics, Sports, Technology, etc.)
+- **Search**: Search for specific keywords across all articles
+- **Sort Options**: Sort by date (newest first) or popularity
+- **Toast Messages**: Toggle on/off to control fetch status notifications
+
+### Tips
+
+- Double-click any tab name to rename it
+- Drag tabs to reorder them
+- Articles are cached locally, so you may need to refresh after adding/removing sources
+- The application remembers your preferences and tab configurations
+
+## Troubleshooting
+
+**Port already in use:**
+If port 3072 is already in use, you can change it in `docker-compose.yml`:
+```yaml
+ports:
+  - "YOUR_PORT:3072"
+```
+
+**Application won't start:**
+- Check that Docker is running: `docker ps`
+- View logs: `docker compose logs newsfeed`
+- Try rebuilding: `docker compose down && docker compose up -d --build`
+
+**Can't access the application:**
+- Make sure the container is running: `docker compose ps`
+- Check that port 3072 is not blocked by a firewall
+- Try accessing via `http://127.0.0.1:3072`
+
+## Technical Notes
+
+- The application runs on port 3072 by default
+- All data (tabs, sources, preferences) is stored in your browser's local storage
+- RSS feeds are fetched through a backend proxy to handle CORS restrictions
+- The application automatically handles character encoding for international content
+
+## Support
+
+For issues or questions, please check the application logs using:
+```bash
+docker compose logs -f newsfeed
+```

@@ -24,6 +24,14 @@
   animation: slideInRight 0.3s ease-out;
   min-width: 300px;
   max-width: 400px;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.toast.dragging {
+  transition: none;
+  cursor: grabbing;
 }
 
 @keyframes slideInRight {
@@ -55,6 +63,22 @@
   font-size: 0.95em;
   line-height: 1.4;
   word-break: break-word;
+}
+
+.toast-message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.toast-message-content > div:first-child {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.toast-message-content > div:not(:first-child) {
+  padding-left: 8px;
+  font-size: 0.9em;
 }
 
 .toast-close {

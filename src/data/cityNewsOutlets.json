@@ -127,6 +127,12 @@
           "type": "online"
         },
         {
+          "name": "The Rio Times",
+          "url": "https://riotimesonline.com/feed/",
+          "language": "en",
+          "type": "newspaper"
+        },
+        {
           "name": "Brasil Wire",
           "url": "http://www.brasilwire.com/feed/",
           "language": "en",
@@ -801,15 +807,9 @@
       ]
     },
     "London": {
-      "country": "BR",
+      "country": "GB",
       "province": "",
       "outlets": [
-        {
-          "name": "The Rio Times",
-          "url": "https://riotimesonline.com/feed/",
-          "language": "fr",
-          "type": "newspaper"
-        },
         {
           "name": "India | The Guardian",
           "url": "https://www.theguardian.com/world/india/rss",
@@ -1779,7 +1779,7 @@
         {
           "name": "US Top News and Analysis",
           "url": "https://www.cnbc.com/id/100003114/device/rss/rss.html",
-          "language": "fr",
+          "language": "en",
           "type": "online"
         }
       ]
@@ -1821,7 +1821,7 @@
         {
           "name": "Playbook",
           "url": "https://rss.politico.com/playbook.xml",
-          "language": "fr",
+          "language": "en",
           "type": "online"
         }
       ]

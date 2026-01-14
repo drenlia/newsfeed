@@ -33,9 +33,12 @@ export const Settings = ({ uiLanguage, onClose }) => {
   const [config, setConfig] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [searchResults, setSearchResults] = useState([])
-  const [selectedSources, setSelectedSources] = useState(new Set())
+  const [selectedAvailableSources, setSelectedAvailableSources] = useState(new Set()) // For "Add Selected" button
+  const [selectedActiveSources, setSelectedActiveSources] = useState(new Set()) // For "Remove Selected" button
   const [selectedCountries, setSelectedCountries] = useState(new Set())
   const [availableCountries, setAvailableCountries] = useState([])
+  const [countrySearchQuery, setCountrySearchQuery] = useState('')
+  const [showToastMessages, setShowToastMessages] = useState(true)
   const searchTimeoutRef = useRef(null)
   const { success, error: showError, warning } = useToastContext()
   
@@ -46,30 +49,56 @@ export const Settings = ({ uiLanguage, onClose }) => {
 
   // Load tabs and configuration on mount
   useEffect(() => {
-    // Load tabs
+    // Load tabs (this will inject default sources if needed)
     const loadedTabs = loadTabs()
     setTabs(loadedTabs)
     
     // Load active tab ID or use first tab
-    let currentActiveTabId = getActiveTabId()
-    if (!currentActiveTabId || !loadedTabs.find(t => t.id === currentActiveTabId)) {
+    // When there's only one tab, always use it as active (this is the default tab)
+    let currentActiveTabId = null
+    if (loadedTabs.length === 1) {
+      // Only one tab exists - always use it (this ensures default tab is always selected)
       currentActiveTabId = loadedTabs[0]?.id || null
       if (currentActiveTabId) {
         setActiveTabId(currentActiveTabId)
       }
+    } else {
+      // Multiple tabs - use stored active tab or first one
+      currentActiveTabId = getActiveTabId(loadedTabs)
+      if (!currentActiveTabId || !loadedTabs.find(t => t.id === currentActiveTabId)) {
+        currentActiveTabId = loadedTabs[0]?.id || null
+        if (currentActiveTabId) {
+          setActiveTabId(currentActiveTabId)
+        }
+      }
     }
     setActiveTabIdState(currentActiveTabId)
     
-    // Load sources for active tab
-    const activeTab = loadedTabs.find(t => t.id === currentActiveTabId)
-    const tabSources = activeTab?.sources || []
+    // Update URL query parameter with active tab name on Settings load
+    if (currentActiveTabId) {
+      const activeTab = loadedTabs.find(t => t.id === currentActiveTabId)
+      if (activeTab?.name) {
+        const url = new URL(window.location.href)
+        url.searchParams.set('tab', encodeURIComponent(activeTab.name))
+        window.history.replaceState({}, '', url.toString())
+      }
+    }
     
-    // Create config from tab sources
-    const loadedConfig = { sources: tabSources }
-    setConfig(loadedConfig)
+      // Load sources for active tab
+      const activeTab = loadedTabs.find(t => t.id === currentActiveTabId)
+      const tabSources = activeTab?.sources || []
+      
+      // Create config from tab sources
+      const loadedConfig = { sources: tabSources }
+      setConfig(loadedConfig)
+      
+      // Clear selections when tab changes
+      setSelectedAvailableSources(new Set())
+      setSelectedActiveSources(new Set())
     
     // Load country filters from storage
     const preferences = loadSettingsPreferences()
+    setShowToastMessages(preferences.showToastMessages !== undefined ? preferences.showToastMessages : true)
     setSelectedCountries(preferences.selectedCountries)
     
     // Load available countries
@@ -88,7 +117,18 @@ export const Settings = ({ uiLanguage, onClose }) => {
       if (activeTab) {
         const tabConfig = { sources: activeTab.sources || [] }
         setConfig(tabConfig)
-        setSelectedSources(new Set()) // Clear selection when switching tabs
+        
+        // Update URL query parameter when active tab changes
+        if (activeTab.name) {
+          const url = new URL(window.location.href)
+          url.searchParams.set('tab', encodeURIComponent(activeTab.name))
+          window.history.replaceState({}, '', url.toString())
+        }
+        
+        // Clear selections when switching tabs
+        setSelectedAvailableSources(new Set())
+        setSelectedActiveSources(new Set())
+      } else {
       }
     }
   }, [activeTabId, tabs])
@@ -132,9 +172,9 @@ export const Settings = ({ uiLanguage, onClose }) => {
   // Get active tab
   const activeTab = tabs.find(t => t.id === activeTabId)
 
-  // Toggle source selection
-  const toggleSourceSelection = (sourceUrl) => {
-    setSelectedSources(prev => {
+  // Toggle source selection in available sources list
+  const toggleAvailableSourceSelection = (sourceUrl) => {
+    setSelectedAvailableSources(prev => {
       const newSet = new Set(prev)
       if (newSet.has(sourceUrl)) {
         newSet.delete(sourceUrl)
@@ -145,12 +185,34 @@ export const Settings = ({ uiLanguage, onClose }) => {
     })
   }
 
-  // Select/Deselect all visible results
+  // Toggle source selection in active sources list
+  const toggleActiveSourceSelection = (sourceUrl) => {
+    setSelectedActiveSources(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(sourceUrl)) {
+        newSet.delete(sourceUrl)
+      } else {
+        newSet.add(sourceUrl)
+      }
+      return newSet
+    })
+  }
+
+  // Select/Deselect all visible results in available sources
   const toggleSelectAll = () => {
-    if (selectedSources.size === searchResults.length) {
-      setSelectedSources(new Set())
+    if (selectedAvailableSources.size === searchResults.length) {
+      setSelectedAvailableSources(new Set())
     } else {
-      setSelectedSources(new Set(searchResults.map(r => r.url)))
+      setSelectedAvailableSources(new Set(searchResults.map(r => r.url)))
+    }
+  }
+
+  // Select/Deselect all active sources
+  const toggleSelectAllActive = () => {
+    if (selectedActiveSources.size === config.sources.length) {
+      setSelectedActiveSources(new Set())
+    } else {
+      setSelectedActiveSources(new Set(config.sources.map(s => s.url)))
     }
   }
 
@@ -179,10 +241,10 @@ export const Settings = ({ uiLanguage, onClose }) => {
 
   // Add selected sources to active tab
   const handleAddSelected = () => {
-    if (selectedSources.size === 0 || !activeTabId) return
+    if (selectedAvailableSources.size === 0 || !activeTabId) return
 
     const sourcesToAdd = searchResults
-      .filter(r => selectedSources.has(r.url))
+      .filter(r => selectedAvailableSources.has(r.url))
       .filter(r => !activeSourceUrls.has(r.url)) // Don't add duplicates
       .map(r => ({
         name: r.name,
@@ -206,15 +268,15 @@ export const Settings = ({ uiLanguage, onClose }) => {
     const updatedConfig = { ...config, sources: updatedSources }
     setConfig(updatedConfig)
     clearCachedNews(activeTabId) // Clear cache for this tab to force fresh fetch
-    setSelectedSources(new Set())
+    setSelectedAvailableSources(new Set()) // Clear selection after adding
     success(`Added ${sourcesToAdd.length} source(s)`)
   }
 
   // Remove selected sources from active tab
   const handleRemoveSelected = () => {
-    if (selectedSources.size === 0 || !activeTabId) return
+    if (selectedActiveSources.size === 0 || !activeTabId) return
 
-    const updatedSources = config.sources.filter(s => !selectedSources.has(s.url))
+    const updatedSources = config.sources.filter(s => !selectedActiveSources.has(s.url))
     const updatedTabs = updateTabSources(tabs, activeTabId, updatedSources)
     setTabs(updatedTabs)
     saveTabs(updatedTabs)
@@ -222,7 +284,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
     const updatedConfig = { ...config, sources: updatedSources }
     setConfig(updatedConfig)
     clearCachedNews(activeTabId) // Clear cache for this tab when removing sources
-    setSelectedSources(new Set())
+    setSelectedActiveSources(new Set()) // Clear selection after removing
     success(`Removed ${config.sources.length - updatedSources.length} source(s)`)
   }
 
@@ -278,6 +340,29 @@ export const Settings = ({ uiLanguage, onClose }) => {
     setConfig(updatedConfig)
     clearCachedNews(activeTabId) // Clear cache for this tab when removing sources
     success('Source removed')
+  }
+
+  // Copy source URL to clipboard
+  const handleCopySourceUrl = async (sourceUrl, sourceName) => {
+    try {
+      await navigator.clipboard.writeText(sourceUrl)
+      success(`Copied ${sourceName} URL to clipboard`)
+    } catch (err) {
+      // Fallback for older browsers
+      try {
+        const textArea = document.createElement('textarea')
+        textArea.value = sourceUrl
+        textArea.style.position = 'fixed'
+        textArea.style.opacity = '0'
+        document.body.appendChild(textArea)
+        textArea.select()
+        document.execCommand('copy')
+        document.body.removeChild(textArea)
+        success(`Copied ${sourceName} URL to clipboard`)
+      } catch (fallbackErr) {
+        showError('Failed to copy URL to clipboard')
+      }
+    }
   }
 
   const handleExport = () => {
@@ -382,6 +467,12 @@ export const Settings = ({ uiLanguage, onClose }) => {
     setActiveTabIdState(newTab.id)
     setActiveTabId(newTab.id)
     setConfig({ sources: [] })
+    
+    // Update URL query parameter with new tab name
+    const url = new URL(window.location.href)
+    url.searchParams.set('tab', encodeURIComponent(newTab.name))
+    window.history.replaceState({}, '', url.toString())
+    
     success(`Created ${newTab.name}`)
   }
 
@@ -400,6 +491,14 @@ export const Settings = ({ uiLanguage, onClose }) => {
       const newActiveId = updatedTabs[0].id
       setActiveTabIdState(newActiveId)
       setActiveTabId(newActiveId)
+      
+      // Update URL query parameter with the new active tab name
+      const newActiveTab = updatedTabs[0]
+      if (newActiveTab?.name) {
+        const url = new URL(window.location.href)
+        url.searchParams.set('tab', encodeURIComponent(newActiveTab.name))
+        window.history.replaceState({}, '', url.toString())
+      }
     }
     
     success('Tab deleted')
@@ -408,6 +507,14 @@ export const Settings = ({ uiLanguage, onClose }) => {
   const handleSwitchTab = (tabId) => {
     setActiveTabIdState(tabId)
     setActiveTabId(tabId)
+    
+    // Update URL query parameter with tab name for navigation consistency
+    const tab = tabs.find(t => t.id === tabId)
+    if (tab?.name) {
+      const url = new URL(window.location.href)
+      url.searchParams.set('tab', encodeURIComponent(tab.name))
+      window.history.replaceState({}, '', url.toString())
+    }
   }
 
   const handleStartEditTabName = (tab) => {
@@ -420,6 +527,14 @@ export const Settings = ({ uiLanguage, onClose }) => {
       const updatedTabs = updateTabName(tabs, tabId, editingTabNameValue.trim())
       setTabs(updatedTabs)
       saveTabs(updatedTabs)
+      
+      // Update URL query parameter if this is the active tab
+      if (activeTabId === tabId) {
+        const url = new URL(window.location.href)
+        url.searchParams.set('tab', encodeURIComponent(editingTabNameValue.trim()))
+        window.history.replaceState({}, '', url.toString())
+      }
+      
       success('Tab name updated')
     }
     setEditingTabName(null)
@@ -454,17 +569,64 @@ export const Settings = ({ uiLanguage, onClose }) => {
     return <div className="settings-loading">{t.loading}</div>
   }
 
-  const allSelected = searchResults.length > 0 && selectedSources.size === searchResults.length
+  const allSelected = searchResults.length > 0 && selectedAvailableSources.size === searchResults.length
+  const allActiveSelected = config.sources.length > 0 && selectedActiveSources.size === config.sources.length
 
   return (
     <div className="settings-page">
       {/* Tab Management Section - Only show when multiple tabs exist */}
       {tabs.length > 1 && (
         <div className="settings-tabs-section">
-          <div className="tabs-header">
+          <div className="tabs-header" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div className="cache-notice" style={{
+              padding: '10px 14px',
+              backgroundColor: '#f0f7ff',
+              border: '1px solid #b3d9ff',
+              borderRadius: '4px',
+              fontSize: '13px',
+              color: '#0066cc',
+              flex: '1'
+            }}>
+              <strong>ℹ️ {t.note}</strong> {t.cacheNotice}
+            </div>
             <button className="create-tab-btn" onClick={handleCreateTab}>
               + {t.createTab}
             </button>
+            <div className="toast-toggle-container" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label style={{ fontSize: '13px', color: '#495057', cursor: 'pointer', userSelect: 'none' }}>
+                {t.showToastMessages || 'Show fetch messages'}
+              </label>
+              <div 
+                className="toggle-switch"
+                onClick={() => {
+                  const newValue = !showToastMessages
+                  setShowToastMessages(newValue)
+                  saveSettingsPreferences({ showToastMessages: newValue })
+                }}
+                style={{
+                  position: 'relative',
+                  width: '44px',
+                  height: '24px',
+                  backgroundColor: showToastMessages ? '#667eea' : '#ccc',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s',
+                  flexShrink: 0
+                }}
+              >
+                <div style={{
+                  position: 'absolute',
+                  top: '2px',
+                  left: showToastMessages ? '22px' : '2px',
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: 'white',
+                  borderRadius: '50%',
+                  transition: 'left 0.2s',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }} />
+              </div>
+            </div>
           </div>
           <div className="tabs-list">
             {tabs.map((tab, index) => (
@@ -527,10 +689,56 @@ export const Settings = ({ uiLanguage, onClose }) => {
       {/* Create Tab Button - Show when only one tab exists */}
       {tabs.length === 1 && (
         <div className="settings-tabs-section">
-          <div className="tabs-header">
+          <div className="tabs-header" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div className="cache-notice" style={{
+              padding: '10px 14px',
+              backgroundColor: '#f0f7ff',
+              border: '1px solid #b3d9ff',
+              borderRadius: '4px',
+              fontSize: '13px',
+              color: '#0066cc',
+              flex: '1'
+            }}>
+              <strong>ℹ️ {t.note}</strong> {t.cacheNotice}
+            </div>
             <button className="create-tab-btn" onClick={handleCreateTab}>
               + {t.createTab}
             </button>
+            <div className="toast-toggle-container" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <label style={{ fontSize: '13px', color: '#495057', cursor: 'pointer', userSelect: 'none' }}>
+                {t.showToastMessages || 'Show fetch messages'}
+              </label>
+              <div 
+                className="toggle-switch"
+                onClick={() => {
+                  const newValue = !showToastMessages
+                  setShowToastMessages(newValue)
+                  saveSettingsPreferences({ showToastMessages: newValue })
+                }}
+                style={{
+                  position: 'relative',
+                  width: '44px',
+                  height: '24px',
+                  backgroundColor: showToastMessages ? '#667eea' : '#ccc',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.2s',
+                  flexShrink: 0
+                }}
+              >
+                <div style={{
+                  position: 'absolute',
+                  top: '2px',
+                  left: showToastMessages ? '22px' : '2px',
+                  width: '20px',
+                  height: '20px',
+                  backgroundColor: 'white',
+                  borderRadius: '50%',
+                  transition: 'left 0.2s',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                }} />
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -548,21 +756,47 @@ export const Settings = ({ uiLanguage, onClose }) => {
                 {t.clearFilters}
               </button>
             )}
+            {/* Country Search Field */}
+            <div className="country-search-container">
+              <input
+                type="text"
+                className="country-search-input"
+                placeholder="Search countries..."
+                value={countrySearchQuery}
+                onChange={(e) => setCountrySearchQuery(e.target.value)}
+              />
+              {countrySearchQuery && (
+                <button
+                  className="country-search-clear"
+                  onClick={() => setCountrySearchQuery('')}
+                  title="Clear search"
+                >
+                  ×
+                </button>
+              )}
+            </div>
             <div className="country-pills-vertical">
-              {availableCountries.map(country => {
-                const isSelected = selectedCountries.has(country.code)
-                return (
-                  <button
-                    key={country.code}
-                    className={`country-pill-vertical ${isSelected ? 'selected' : ''}`}
-                    onClick={() => toggleCountryFilter(country.code)}
-                    title={`${country.name} (${country.count} sources)`}
-                  >
-                    <span className="country-name">{country.name}</span>
-                    <span className="country-count">({country.count})</span>
-                  </button>
-                )
-              })}
+              {availableCountries
+                .filter(country => {
+                  if (!countrySearchQuery.trim()) return true
+                  const query = countrySearchQuery.toLowerCase()
+                  return country.name.toLowerCase().includes(query) ||
+                         country.code.toLowerCase().includes(query)
+                })
+                .map(country => {
+                  const isSelected = selectedCountries.has(country.code)
+                  return (
+                    <button
+                      key={country.code}
+                      className={`country-pill-vertical ${isSelected ? 'selected' : ''}`}
+                      onClick={() => toggleCountryFilter(country.code)}
+                      title={`${country.name} (${country.count} sources)`}
+                    >
+                      <span className="country-name">{country.name}</span>
+                      <span className="country-count">({country.count})</span>
+                    </button>
+                  )
+                })}
             </div>
           </div>
         </aside>
@@ -713,12 +947,12 @@ export const Settings = ({ uiLanguage, onClose }) => {
             <div className="sources-column">
               <div className="column-header">
                 <h3>{t.availableSources}</h3>
-                {selectedSources.size > 0 && (
+                {selectedAvailableSources.size > 0 && (
                   <button 
                     className="add-selected-btn"
                     onClick={handleAddSelected}
                   >
-                    {t.addSelected} ({selectedSources.size})
+                    {t.addSelected} ({selectedAvailableSources.size})
                   </button>
                 )}
               </div>
@@ -729,7 +963,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
                   <div className="sources-list-compact">
                     {searchResults.map((source, idx) => {
                       const isActive = activeSourceUrls.has(source.url)
-                      const isSelected = selectedSources.has(source.url)
+                      const isSelected = selectedAvailableSources.has(source.url)
                       
                       return (
                         <div 
@@ -740,7 +974,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
                             <input
                               type="checkbox"
                               checked={isSelected}
-                              onChange={() => toggleSourceSelection(source.url)}
+                              onChange={() => toggleAvailableSourceSelection(source.url)}
                               onClick={(e) => e.stopPropagation()}
                             />
                             <div className="source-info-compact">
@@ -778,14 +1012,24 @@ export const Settings = ({ uiLanguage, onClose }) => {
             <div className="sources-column">
               <div className="column-header">
                 <h3>{t.activeSources} ({config.sources.length})</h3>
-                {selectedSources.size > 0 && (
-                  <button 
-                    className="remove-selected-btn"
-                    onClick={handleRemoveSelected}
-                  >
-                    {t.removeSelected} ({selectedSources.size})
-                  </button>
-                )}
+                <div className="header-buttons">
+                  {config.sources.length > 0 && (
+                    <button 
+                      className="select-all-btn"
+                      onClick={toggleSelectAllActive}
+                    >
+                      {allActiveSelected ? t.deselectAll : t.selectAll}
+                    </button>
+                  )}
+                  {selectedActiveSources.size > 0 && (
+                    <button 
+                      className="remove-selected-btn"
+                      onClick={handleRemoveSelected}
+                    >
+                      {t.removeSelected} ({selectedActiveSources.size})
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="sources-list-container">
                 {config.sources.length === 0 ? (
@@ -793,17 +1037,26 @@ export const Settings = ({ uiLanguage, onClose }) => {
                 ) : (
                   <div className="sources-list-compact">
                     {config.sources.map((source, idx) => {
-                      const isSelected = selectedSources.has(source.url)
+                      const isSelected = selectedActiveSources.has(source.url)
                       return (
                         <div 
                           key={idx} 
                           className={`source-item-compact active ${isSelected ? 'selected' : ''}`}
+                          style={{ cursor: 'pointer' }}
+                          onClick={(e) => {
+                            // Don't copy if clicking on checkbox or remove button
+                            if (e.target.type === 'checkbox' || e.target.closest('button')) {
+                              return
+                            }
+                            handleCopySourceUrl(source.url, source.name)
+                          }}
+                          title={`Click to copy URL: ${source.url}`}
                         >
                           <label className="source-checkbox-label-compact">
                             <input
                               type="checkbox"
                               checked={isSelected}
-                              onChange={() => toggleSourceSelection(source.url)}
+                              onChange={() => toggleActiveSourceSelection(source.url)}
                               onClick={(e) => e.stopPropagation()}
                             />
                             <div className="source-info-compact">
@@ -824,7 +1077,10 @@ export const Settings = ({ uiLanguage, onClose }) => {
                           </label>
                           <button
                             className="toggle-source-btn-compact remove"
-                            onClick={() => handleRemoveSource(source.url)}
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleRemoveSource(source.url)
+                            }}
                             title={t.removeSource}
                           >
                             ×

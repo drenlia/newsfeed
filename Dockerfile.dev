@@ -1,0 +1,22 @@
+# Development Dockerfile with hot-reload support
+FROM node:20.19-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package.json package-lock.json ./
+
+# Install all dependencies (including devDependencies and concurrently)
+RUN npm ci
+
+# Copy source code (will be mounted as volume in docker-compose for hot-reload)
+# This copy is for initial setup, volumes will override in docker-compose
+COPY . .
+
+# Expose ports
+# 3072: Vite dev server (same as production)
+# 3073: Backend proxy server (internal, proxied by Vite)
+EXPOSE 3072 3073
+
+# Start both Vite dev server and backend proxy using concurrently
+CMD ["npm", "run", "dev:docker"]

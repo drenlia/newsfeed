@@ -1,5 +1,5 @@
 // Utility to validate RSS feeds and extract channel metadata
-import { getCorsProxy } from '../constants/cors'
+// Uses backend proxy to avoid CORS issues
 
 /**
  * Validates an RSS feed URL and extracts channel metadata
@@ -23,119 +23,38 @@ export const validateRssFeed = async (feedUrl) => {
   
   let xmlText = null
   
-  // Try to fetch the feed
+  // Try to fetch the feed using backend proxy
   try {
-    // Try direct access first (will fail silently on CORS, then try proxy)
-    let directAccessFailed = false
-    try {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 5000)
-      
-      let response = null
-      try {
-        response = await fetch(feedUrl, {
-          signal: controller.signal,
-          headers: {
-            'Accept': 'application/rss+xml, application/xml, text/xml, */*'
-          },
-          mode: 'cors'
-        })
-      } catch (fetchError) {
-        // CORS or network error - this is expected, will try proxy
-        directAccessFailed = true
-        clearTimeout(timeoutId)
-        // Silently continue to proxy attempt
-      }
-      
-      if (response) {
-        clearTimeout(timeoutId)
-        
-        if (response.ok) {
-          xmlText = await response.text()
-          // Validate it's actually XML/RSS
-          const trimmedText = xmlText.trim()
-          if (trimmedText.startsWith('<!DOCTYPE') || trimmedText.startsWith('<html') || 
-              (!trimmedText.includes('<rss') && !trimmedText.includes('<feed') && !trimmedText.includes('<?xml'))) {
-            xmlText = null // Not valid XML/RSS
-          }
-        } else if (response.status === 404) {
-          // 404 from direct access - feed doesn't exist
-          return {
-            valid: false,
-            errors: [`Feed not found (404). Please check the URL: ${feedUrl}`],
-            warnings: []
-          }
-        }
-      } else {
-        directAccessFailed = true
-      }
-    } catch (directError) {
-      // Any other error - will try proxy
-      directAccessFailed = true
-    }
+    const proxyUrl = `/api/proxy/rss?url=${encodeURIComponent(feedUrl)}`
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 10000)
     
-    // Fallback to proxy if direct failed
-    if (!xmlText && directAccessFailed) {
-      // Try multiple proxy fallbacks
-      let proxySuccess = false
-      for (let proxyIndex = 0; proxyIndex < 2; proxyIndex++) {
-        try {
-          const proxyUrl = getCorsProxy(feedUrl, proxyIndex)
-          if (!proxyUrl) continue
-          
-          const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 8000)
-          
-          const response = await fetch(proxyUrl, {
-            signal: controller.signal,
-            headers: {
-              'Accept': 'application/rss+xml, application/xml, text/xml, */*'
-            }
-          })
-          
-          clearTimeout(timeoutId)
-          
-          if (response && response.ok) {
-            xmlText = await response.text()
-            // Validate it's actually XML/RSS
-            const trimmedText = xmlText.trim()
-            if (trimmedText.startsWith('<!DOCTYPE') || trimmedText.startsWith('<html') || 
-                (!trimmedText.includes('<rss') && !trimmedText.includes('<feed') && !trimmedText.includes('<?xml'))) {
-              xmlText = null // Not valid XML/RSS, try next proxy
-              continue
-            }
-            proxySuccess = true
-            break
-          } else if (response && response.status === 404) {
-            return {
-              valid: false,
-              errors: [`Feed not found (404). Please check the URL: ${feedUrl}`],
-              warnings: []
-            }
-          }
-        } catch (proxyError) {
-          // Try next proxy
-          if (process.env.NODE_ENV === 'development') {
-            console.debug(`[RSS Validator] Proxy ${proxyIndex} failed:`, proxyError.message)
-          }
-          continue
-        }
+    const response = await fetch(proxyUrl, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/rss+xml, application/xml, text/xml, */*'
       }
-      
-      if (!proxySuccess && !xmlText) {
+    })
+    
+    clearTimeout(timeoutId)
+    
+    if (!response.ok) {
+      if (response.status === 404) {
         return {
           valid: false,
-          errors: [
-            'Unable to fetch feed. This could be due to:',
-            '1. CORS restrictions (feed server blocks cross-origin requests)',
-            '2. Network connectivity issues',
-            '3. Invalid or inaccessible feed URL',
-            `URL attempted: ${feedUrl}`
-          ],
+          errors: [`Feed not found (404). Please check the URL: ${feedUrl}`],
           warnings: []
         }
       }
+      const errorText = await response.text().catch(() => 'Unknown error')
+      return {
+        valid: false,
+        errors: [`Failed to fetch feed (${response.status}): ${errorText}`],
+        warnings: []
+      }
     }
+    
+    xmlText = await response.text()
     
     if (!xmlText || xmlText.trim().length === 0) {
       return {
@@ -148,9 +67,11 @@ export const validateRssFeed = async (feedUrl) => {
     // Check if response is HTML (error page) instead of XML
     // This can happen even when Content-Type header says RSS/XML (like this site does)
     const trimmedText = xmlText.trim()
+    
+    // Validate it's actually XML/RSS
     if (trimmedText.startsWith('<!DOCTYPE') || 
         trimmedText.startsWith('<html') || 
-        (trimmedText.includes('<!DOCTYPE') && !trimmedText.includes('<rss') && !trimmedText.includes('<feed'))) {
+        (!trimmedText.includes('<rss') && !trimmedText.includes('<feed') && !trimmedText.includes('<?xml'))) {
       // Check if it's a 404 page
       const is404Page = trimmedText.includes('404') || 
                         trimmedText.toLowerCase().includes('page introuvable') ||

@@ -1,4 +1,5 @@
 // Utilities for managing tabs configuration
+import { loadNewsConfig } from './newsConfigUtils.js'
 
 const TABS_KEY = 'newsfeed-tabs'
 const ACTIVE_TAB_KEY = 'newsfeed-active-tab'
@@ -13,36 +14,77 @@ export const createDefaultTab = () => ({
 
 // Load tabs from localStorage
 export const loadTabs = () => {
+  let tabs = []
+  let needsSave = false
+  
   try {
     const stored = localStorage.getItem(TABS_KEY)
     if (stored) {
       const parsed = JSON.parse(stored)
       if (parsed && Array.isArray(parsed) && parsed.length > 0) {
-        return parsed
+        tabs = parsed
       }
     }
   } catch (error) {
     console.warn('Failed to load tabs from localStorage:', error)
   }
   
-  // Return default tab - migrate existing sources if available
+  // Get default sources from news.json
+  let defaultSources = []
   try {
-    const { loadNewsConfig } = require('./newsConfigUtils')
-    const existingConfig = loadNewsConfig()
-    if (existingConfig && existingConfig.sources && existingConfig.sources.length > 0) {
-      // Migrate existing sources to default tab
-      const defaultTab = createDefaultTab()
-      defaultTab.sources = existingConfig.sources
-      const tabs = [defaultTab]
-      saveTabs(tabs) // Save migrated tabs
-      return tabs
+    const defaultConfig = loadNewsConfig()
+    if (defaultConfig && defaultConfig.sources && defaultConfig.sources.length > 0) {
+      defaultSources = defaultConfig.sources
     }
   } catch (error) {
-    console.warn('Failed to migrate existing config to tabs:', error)
+    console.warn('Failed to load default sources:', error)
   }
   
-  // Return default tab with empty sources
-  return [createDefaultTab()]
+  // If no tabs exist, create default tab with default sources
+  if (tabs.length === 0) {
+    if (defaultSources.length > 0) {
+      const defaultTab = createDefaultTab()
+      defaultTab.sources = defaultSources
+      tabs = [defaultTab]
+      needsSave = true
+    } else {
+      tabs = [createDefaultTab()]
+    }
+  } else {
+    // Only inject default sources if:
+    // 1. There's only one tab (the default tab)
+    // 2. That tab is named "Default" (or is the first tab if no name)
+    // 3. That tab has no sources
+    // This allows users to have empty tabs when there are multiple tabs
+    if (tabs.length === 1) {
+      const defaultTab = tabs[0]
+      const isDefaultTab = defaultTab.name === 'Default' || !defaultTab.name
+      const hasNoSources = !defaultTab.sources || 
+                          !Array.isArray(defaultTab.sources) || 
+                          defaultTab.sources.length === 0
+      
+      if (isDefaultTab && hasNoSources && defaultSources.length > 0) {
+        // Inject default sources into the default tab only
+        needsSave = true
+        tabs[0] = {
+          ...defaultTab,
+          sources: [...defaultSources] // Create a copy to avoid reference issues
+        }
+      }
+    }
+    // If there are multiple tabs, don't auto-fill any of them
+    // Users can manage their tabs independently
+  }
+  
+  // Save tabs if we made any changes
+  if (needsSave) {
+    const saved = saveTabs(tabs)
+    if (saved) {
+    }
+  }
+  
+  // Return tabs (with default sources injected if needed)
+  return tabs.length > 0 ? tabs : [createDefaultTab()]
 }
 
 // Save tabs to localStorage

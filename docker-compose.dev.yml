@@ -1,0 +1,30 @@
+services:
+  newsfeed:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: newsfeed-app-dev
+    ports:
+      - "3072:3072"  # Vite dev server (same port as production)
+    volumes:
+      # Mount source code for hot-reload
+      - ./src:/app/src
+      - ./public:/app/public
+      - ./index.html:/app/index.html
+      - ./vite.config.js:/app/vite.config.js
+      - ./server.js:/app/server.js
+      # Exclude node_modules (use container's)
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_PORT=3072
+      - BACKEND_PORT=3073
+      # Set HOST to match your nginx server_name
+      - HOST=news.drenlia.com
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3072', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
