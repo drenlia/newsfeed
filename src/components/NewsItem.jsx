@@ -84,6 +84,12 @@ export const NewsItem = ({ item, uiLanguage, isNew, combinedCategories, onCatego
                     .replace(/<picture[^>]*>.*?<\/picture>/gi, '') // Remove picture tags
                     .replace(/<div[^>]*class="[^"]*image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with image classes
                     .replace(/<div[^>]*style="[^"]*background-image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with background images
+                    .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '') // Remove iframes (YouTube, etc.)
+                    .replace(/<embed[^>]*>.*?<\/embed>/gi, '') // Remove embed tags
+                    .replace(/<object[^>]*>.*?<\/object>/gi, '') // Remove object tags
+                    .replace(/<video[^>]*>.*?<\/video>/gi, '') // Remove video tags
+                    .replace(/<audio[^>]*>.*?<\/audio>/gi, '') // Remove audio tags
+                    .replace(/<core-commerce[^>]*>.*?<\/core-commerce>/gi, '') // Remove custom elements
                 }} 
               />
             ) : (
@@ -100,6 +106,12 @@ export const NewsItem = ({ item, uiLanguage, isNew, combinedCategories, onCatego
                     .replace(/<picture[^>]*>.*?<\/picture>/gi, '') // Remove picture tags
                     .replace(/<div[^>]*class="[^"]*image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with image classes
                     .replace(/<div[^>]*style="[^"]*background-image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with background images
+                    .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '') // Remove iframes (YouTube, etc.)
+                    .replace(/<embed[^>]*>.*?<\/embed>/gi, '') // Remove embed tags
+                    .replace(/<object[^>]*>.*?<\/object>/gi, '') // Remove object tags
+                    .replace(/<video[^>]*>.*?<\/video>/gi, '') // Remove video tags
+                    .replace(/<audio[^>]*>.*?<\/audio>/gi, '') // Remove audio tags
+                    .replace(/<core-commerce[^>]*>.*?<\/core-commerce>/gi, '') // Remove custom elements
                 }} 
               />
             )

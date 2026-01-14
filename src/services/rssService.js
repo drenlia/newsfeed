@@ -34,10 +34,29 @@ const stripHtmlTags = (html) => {
 const extractCategories = (item, source) => {
   const categories = []
   
+  // Helper function to normalize category paths (extract last segment from hierarchical paths)
+  // Example: "fox-news/us/congress" -> "congress", "fox-news/politics" -> "politics"
+  const normalizeCategory = (text) => {
+    const trimmed = text.trim()
+    if (!trimmed) return trimmed
+    
+    // If category contains "/", extract the last segment
+    if (trimmed.includes('/')) {
+      const segments = trimmed.split('/').filter(s => s.trim())
+      if (segments.length > 0) {
+        return segments[segments.length - 1].trim()
+      }
+    }
+    
+    return trimmed
+  }
+  
   // Helper function to check if a category is a valid category (not metadata/technical)
   // Filters out UUIDs, GUIDs, metadata fields, and other non-category identifiers
   const isValidCategory = (text) => {
-    const trimmed = text.trim()
+    // First normalize the category (extract last segment from paths)
+    const normalized = normalizeCategory(text)
+    const trimmed = normalized.trim()
     if (!trimmed) return false
     
     // Exclude UUID/GUID patterns (8-4-4-4-12 hex digits with hyphens)
@@ -48,6 +67,11 @@ const extractCategories = (item, source) => {
     
     // Exclude if it's all hex digits and hyphens (no actual words)
     if (/^[0-9a-f\-]+$/i.test(trimmed) && trimmed.length > 10) {
+      return false
+    }
+    
+    // Exclude pipe-separated key-value pairs (metadata fields like "site|engadget", "provider_name|Engadget")
+    if (/\|/.test(trimmed)) {
       return false
     }
     
@@ -65,6 +89,22 @@ const extractCategories = (item, source) => {
       return false
     }
     
+    // Exclude metadata field names (underscore-separated fields like "provider_name", "author_name", "region", "language")
+    const metadataFieldPatterns = [
+      /^(site|provider|author|region|language|country|publisher|rights|creator|source|identifier|subject|coverage|date|format|type|relation|contributor|title|description|link|category|generator|managingeditor|webmaster|copyright|lastbuilddate|pubdate|ttl|rating|image|textinput|skiphours|skipdays|enclosure|guid|comments|source)_?(name|id|code|value|type|path|url|link)?$/i,
+      /^headline$/i, // "headline" is typically metadata, not a category
+      /^media$/i, // "media" is too generic and often metadata
+    ]
+    if (metadataFieldPatterns.some(pattern => pattern.test(trimmed))) {
+      return false
+    }
+    
+    // Exclude if it looks like a metadata field (ends with common metadata suffixes)
+    const metadataSuffixes = ['_name', '_id', '_code', '_type', '_path', '_url', '_link', '_value']
+    if (metadataSuffixes.some(suffix => trimmed.toLowerCase().endsWith(suffix))) {
+      return false
+    }
+    
     // Exclude very short categories (less than 3 characters) unless they're common category words
     const commonShortCategories = ['us', 'uk', 'ca', 'fr', 'en', 'de', 'it', 'es', 'pt', 'ru', 'cn', 'jp']
     if (trimmed.length < 3 && !commonShortCategories.includes(trimmed.toLowerCase())) {
@@ -74,7 +114,8 @@ const extractCategories = (item, source) => {
     // Exclude common non-category words
     const nonCategoryWords = [
       'article', 'fnc', 'rss', 'xml', 'feed', 'item', 'post', 'entry',
-      'page', 'url', 'link', 'id', 'guid', 'pubdate', 'date'
+      'page', 'url', 'link', 'id', 'guid', 'pubdate', 'date',
+      'headline', 'media' // Too generic, often metadata
     ]
     if (nonCategoryWords.includes(trimmed.toLowerCase())) {
       return false
@@ -84,6 +125,33 @@ const extractCategories = (item, source) => {
     // Patterns like "foxnews.com/something" or just domain names
     if (/^[a-z0-9-]+\.(com|org|net|edu|gov|io|co)\/?/i.test(trimmed) && !trimmed.includes('/')) {
       return false
+    }
+    
+    // Exclude single words that are too generic (likely metadata labels)
+    const genericMetadataWords = ['media', 'headline', 'content', 'text', 'data', 'info', 'meta']
+    if (genericMetadataWords.includes(trimmed.toLowerCase()) && trimmed.split(/\s+/).length === 1) {
+      return false
+    }
+    
+    // Exclude person names (patterns like "kristi-noem", "donald-trump", etc.)
+    // Person names typically have capitalized words or are in kebab-case with proper names
+    // Check if it looks like a person name (contains common name patterns)
+    const personNamePatterns = [
+      /^[A-Z][a-z]+-[A-Z][a-z]+/, // "Kristi-Noem", "Donald-Trump"
+      /^[a-z]+-[a-z]+-[a-z]+$/, // Multiple kebab-case segments (likely a name)
+    ]
+    // Also check if it's in a "person/" path (already normalized, but check original if available)
+    if (text.includes('/person/') || personNamePatterns.some(pattern => pattern.test(trimmed))) {
+      return false
+    }
+    
+    // Exclude overly generic single-segment categories from paths
+    // If the original had a path and the last segment is too generic, exclude it
+    if (text.includes('/')) {
+      const genericPathSegments = ['us', 'world', 'person', 'topic', 'source', 'site']
+      if (genericPathSegments.includes(trimmed.toLowerCase())) {
+        return false
+      }
     }
     
     // Must contain at least one letter (a-z, A-Z)
@@ -97,31 +165,54 @@ const extractCategories = (item, source) => {
   // Standard RSS category
   item.querySelectorAll('category').forEach(cat => {
     const catText = decodeHtmlEntities(cat.textContent?.trim() || '')
-    if (catText && isValidCategory(catText)) categories.push(catText)
+    if (catText && isValidCategory(catText)) {
+      const normalized = normalizeCategory(catText)
+      if (normalized && !categories.includes(normalized)) {
+        categories.push(normalized)
+      }
+    }
     // Also check domain attribute (some feeds use category domain="...")
     const domain = cat.getAttribute('domain')
-    if (domain && isValidCategory(domain) && !categories.includes(domain)) {
-      categories.push(domain)
+    if (domain && isValidCategory(domain)) {
+      const normalized = normalizeCategory(domain)
+      if (normalized && !categories.includes(normalized)) {
+        categories.push(normalized)
+      }
     }
   })
   
   // Dublin Core subject
   item.querySelectorAll('dc\\:subject').forEach(cat => {
     const catText = decodeHtmlEntities(cat.textContent?.trim() || '')
-    if (catText && isValidCategory(catText) && !categories.includes(catText)) categories.push(catText)
+    if (catText && isValidCategory(catText)) {
+      const normalized = normalizeCategory(catText)
+      if (normalized && !categories.includes(normalized)) {
+        categories.push(normalized)
+      }
+    }
   })
   
   // Media RSS category
   item.querySelectorAll('media\\:category').forEach(cat => {
     const catText = decodeHtmlEntities(cat.textContent?.trim() || '')
-    if (catText && isValidCategory(catText) && !categories.includes(catText)) categories.push(catText)
+    if (catText && isValidCategory(catText)) {
+      const normalized = normalizeCategory(catText)
+      if (normalized && !categories.includes(normalized)) {
+        categories.push(normalized)
+      }
+    }
   })
   
   // Check for categories in other namespaces
   Array.from(item.children).forEach(child => {
     if (child.localName === 'category') {
       const catText = decodeHtmlEntities(child.textContent?.trim() || '')
-      if (catText && isValidCategory(catText) && !categories.includes(catText)) categories.push(catText)
+      if (catText && isValidCategory(catText)) {
+        const normalized = normalizeCategory(catText)
+        if (normalized && !categories.includes(normalized)) {
+          categories.push(normalized)
+        }
+      }
     }
   })
   
@@ -130,9 +221,12 @@ const extractCategories = (item, source) => {
               item.querySelector('keywords')?.textContent || ''
   if (tags) {
     tags.split(',').forEach(tag => {
-      const tagText = tag.trim()
-      if (tagText && isValidCategory(tagText) && !categories.includes(tagText)) {
-        categories.push(tagText)
+      const tagText = decodeHtmlEntities(tag.trim())
+      if (tagText && isValidCategory(tagText)) {
+        const normalized = normalizeCategory(tagText)
+        if (normalized && !categories.includes(normalized)) {
+          categories.push(normalized)
+        }
       }
     })
   }
@@ -314,6 +408,48 @@ const parseRssItem = (item, source) => {
     }
     
     description = description.trim()
+    
+    // Remove embedded content (videos, iframes, etc.) that can make descriptions too long
+    // This helps with feeds like Engadget that include full article content
+    description = description
+      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '') // Remove iframes (YouTube, etc.)
+      .replace(/<embed[^>]*>.*?<\/embed>/gi, '') // Remove embed tags
+      .replace(/<object[^>]*>.*?<\/object>/gi, '') // Remove object tags
+      .replace(/<video[^>]*>.*?<\/video>/gi, '') // Remove video tags
+      .replace(/<audio[^>]*>.*?<\/audio>/gi, '') // Remove audio tags
+      .replace(/<script[^>]*>.*?<\/script>/gi, '') // Remove script tags
+      .replace(/<style[^>]*>.*?<\/style>/gi, '') // Remove style tags
+      .replace(/<core-commerce[^>]*>.*?<\/core-commerce>/gi, '') // Remove custom elements like Engadget's core-commerce
+      .trim()
+  }
+  
+  // Limit description length to keep articles compact
+  // For feeds with full article content, truncate to a reasonable preview length
+  const MAX_DESCRIPTION_LENGTH = 500
+  if (description.length > MAX_DESCRIPTION_LENGTH) {
+    // Try to truncate at a sentence boundary (period followed by space)
+    const truncated = description.substring(0, MAX_DESCRIPTION_LENGTH)
+    const lastSentence = truncated.lastIndexOf('. ')
+    const lastParagraph = truncated.lastIndexOf('</p>')
+    const cutPoint = Math.max(lastSentence, lastParagraph > 0 ? lastParagraph + 4 : 0)
+    
+    if (cutPoint > MAX_DESCRIPTION_LENGTH * 0.6) {
+      // Use sentence/paragraph boundary if it's reasonable
+      description = description.substring(0, cutPoint).trim()
+    } else {
+      // Otherwise truncate at word boundary
+      const lastSpace = truncated.lastIndexOf(' ')
+      if (lastSpace > MAX_DESCRIPTION_LENGTH * 0.7) {
+        description = truncated.substring(0, lastSpace).trim()
+      } else {
+        description = truncated.trim()
+      }
+    }
+    
+    // Add ellipsis if we truncated
+    if (!description.endsWith('...') && !description.endsWith('.')) {
+      description += '...'
+    }
   }
   
   // If no title but we have description, use description as title (UOL feed pattern)
@@ -354,11 +490,11 @@ const parseRssItem = (item, source) => {
   }
   
   // Limit content size to prevent memory issues (max 50KB per field)
-  const MAX_CONTENT_SIZE = 50 * 1024 // 50KB
-  if (description.length > MAX_CONTENT_SIZE) {
-    console.warn(`[${source.name}] Description too long (${description.length} chars), truncating to ${MAX_CONTENT_SIZE}`)
-    description = description.substring(0, MAX_CONTENT_SIZE) + '...'
-  }
+    const MAX_CONTENT_SIZE = 50 * 1024 // 50KB
+    if (content.length > MAX_CONTENT_SIZE) {
+      console.warn(`[${source.name}] Content too long (${content.length} chars), truncating to ${MAX_CONTENT_SIZE}`)
+      content = content.substring(0, MAX_CONTENT_SIZE) + '...'
+    }
   if (content.length > MAX_CONTENT_SIZE) {
     console.warn(`[${source.name}] Content too long (${content.length} chars), truncating to ${MAX_CONTENT_SIZE}`)
     content = content.substring(0, MAX_CONTENT_SIZE) + '...'

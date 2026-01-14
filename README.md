@@ -2,6 +2,8 @@
 
 A modern, bilingual news aggregator that brings together the latest articles from multiple sources in one convenient place. The application automatically fetches news from RSS feeds, displays them in an easy-to-read format, and lets you organize your reading with customizable tabs.
 
+![News Feed Application](public/newsfeed.png)
+
 ## Features
 
 - **Bilingual Interface**: Switch between French and English with a single click
@@ -78,34 +80,7 @@ docker compose up -d --build
 
 ## Using the Application
 
-### Creating Tabs
-
-You can create multiple tabs to organize different sets of news sources. For example:
-- Create a "Local News" tab with Montreal-specific sources
-- Create a "International" tab with global news sources
-- Create a "Technology" tab with tech-focused sources
-
-### Adding News Sources
-
-1. Click the **Settings** button in the top right
-2. Use the search to find news sources by outlet name, city, or country
-3. Select sources and click **Add Selected**
-4. Sources are automatically saved to your current tab
-
-### Customizing Your Experience
-
-- **Language Filter**: Show all news, French only, or English only
-- **Category Filter**: Filter articles by topic (Politics, Sports, Technology, etc.)
-- **Search**: Search for specific keywords across all articles
-- **Sort Options**: Sort by date (newest first) or popularity
-- **Toast Messages**: Toggle on/off to control fetch status notifications
-
-### Tips
-
-- Double-click any tab name to rename it
-- Drag tabs to reorder them
-- Articles are cached locally, so you may need to refresh after adding/removing sources
-- The application remembers your preferences and tab configurations
+For detailed instructions on all features and options, see the [User Guide](USER_GUIDE.md).
 
 ## Troubleshooting
 

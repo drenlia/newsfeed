@@ -156,11 +156,11 @@ export const validateRssFeed = async (feedUrl) => {
     }
     
     // Validate required fields in items
+    // Note: category is optional in RSS 2.0 spec, so we don't require it
     const requiredFields = {
       title: false,
       description: false,
-      pubDate: false,
-      category: false
+      pubDate: false
     }
     
     const sampleItems = Array.from(items).slice(0, 5) // Check first 5 items
@@ -174,9 +174,7 @@ export const validateRssFeed = async (feedUrl) => {
         if (item.querySelector('pubDate')?.textContent || 
             item.querySelector('published')?.textContent ||
             item.querySelector('dc\\:date')?.textContent) requiredFields.pubDate = true
-        if (item.querySelector('category') || 
-            item.querySelector('dc\\:subject') ||
-            item.querySelector('media\\:category')) requiredFields.category = true
+        // Categories are optional in RSS 2.0, so we don't check for them
       })
     } else {
       // No items to validate, but feed structure is valid
@@ -184,11 +182,24 @@ export const validateRssFeed = async (feedUrl) => {
     }
     
     // Build error list for missing required fields
+    // Note: category is optional in RSS 2.0, so we don't require it
     const missingFields = []
     if (!requiredFields.title) missingFields.push('title')
     if (!requiredFields.description) missingFields.push('description')
     if (!requiredFields.pubDate) missingFields.push('pubDate')
-    if (!requiredFields.category) missingFields.push('category')
+    
+    // Check if categories exist (optional, but warn if missing)
+    let hasCategories = false
+    if (sampleItems.length > 0) {
+      hasCategories = sampleItems.some(item => 
+        item.querySelector('category') || 
+        item.querySelector('dc\\:subject') ||
+        item.querySelector('media\\:category')
+      )
+    }
+    if (!hasCategories && items.length > 0) {
+      warnings.push('Feed items do not contain category information (optional in RSS 2.0)')
+    }
     
     if (missingFields.length > 0) {
       return {

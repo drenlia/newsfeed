@@ -46,6 +46,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
   const [manualFeedUrl, setManualFeedUrl] = useState('')
   const [validatingFeed, setValidatingFeed] = useState(false)
   const [feedValidationResult, setFeedValidationResult] = useState(null)
+  const [feedTitle, setFeedTitle] = useState('')
 
   // Load tabs and configuration on mount
   useEffect(() => {
@@ -394,10 +395,17 @@ export const Settings = ({ uiLanguage, onClose }) => {
     
     setValidatingFeed(true)
     setFeedValidationResult(null)
+    setFeedTitle('') // Reset title when validating new feed
     
     try {
       const result = await validateRssFeed(manualFeedUrl.trim())
       setFeedValidationResult(result)
+      // Set initial title from feed validation result
+      if (result.valid && result.channel && result.channel.title) {
+        setFeedTitle(result.channel.title)
+      } else {
+        setFeedTitle('')
+      }
       if (!result.valid && result.errors && result.errors.length > 0) {
         showError(result.errors[0])
       }
@@ -408,6 +416,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
         warnings: []
       }
       setFeedValidationResult(errorResult)
+      setFeedTitle('')
       showError(`Validation error: ${error.message}`)
     } finally {
       setValidatingFeed(false)
@@ -421,6 +430,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
     }
     
     const feedUrl = manualFeedUrl.trim()
+    const finalTitle = feedTitle.trim() || feedValidationResult.channel.title || 'Untitled Feed'
     
     // Check if feed already exists
     if (config.sources.some(s => s.url === feedUrl)) {
@@ -430,7 +440,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
     
     // Create new source from validated feed
     const newSource = {
-      name: feedValidationResult.channel.title || 'Untitled Feed',
+      name: finalTitle,
       url: feedUrl,
       language: feedValidationResult.channel.language || 'en',
       region: '', // Manual feeds don't have a region by default
@@ -456,6 +466,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
     // Clear form
     setManualFeedUrl('')
     setFeedValidationResult(null)
+    setFeedTitle('')
   }
 
   // Tab management functions
@@ -844,7 +855,21 @@ export const Settings = ({ uiLanguage, onClose }) => {
                         <div className="feed-channel-info">
                           <div className="feed-info-row">
                             <span className="feed-info-label">{t.feedTitle}:</span>
-                            <span className="feed-info-value">{feedValidationResult.channel.title || 'N/A'}</span>
+                            <input
+                              type="text"
+                              className="feed-title-input"
+                              value={feedTitle}
+                              onChange={(e) => setFeedTitle(e.target.value)}
+                              placeholder={feedValidationResult.channel.title || 'Untitled Feed'}
+                              style={{
+                                flex: 1,
+                                padding: '6px 10px',
+                                border: '1px solid #ddd',
+                                borderRadius: '4px',
+                                fontSize: '14px',
+                                marginLeft: '8px'
+                              }}
+                            />
                           </div>
                           {feedValidationResult.channel.description && (
                             <div className="feed-info-row">
