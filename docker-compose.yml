@@ -18,6 +18,9 @@ services:
       - HTTPS=${HTTPS:-false}
       # Or use ALLOWED_HOSTS for multiple hosts (comma-separated):
       # - ALLOWED_HOSTS=${ALLOWED_HOSTS}
+    mem_limit: 256m
+    cpus: 0.75
+    mem_reservation: 128m
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3072', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
       interval: 30s
