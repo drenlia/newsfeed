@@ -2357,18 +2357,26 @@
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  margin-top: 30px;
 }
 
 .export-btn, .import-btn {
-  padding: 10px 20px;
+  padding: 12px 24px;
   background: #667eea;
   color: white;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
+  font-size: 14px;
+  line-height: 1.4;
   transition: all 0.2s;
   display: inline-block;
+  text-align: center;
+  white-space: normal;
+  min-width: 140px;
 }
 
 .export-btn:hover, .import-btn:hover {

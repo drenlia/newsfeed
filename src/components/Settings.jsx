@@ -368,7 +368,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
 
   const handleExport = () => {
     exportConfig(config)
-    success('Configuration exported')
+    success('Full backup exported (tabs, settings, and sources)')
   }
 
   const handleImport = (event) => {
@@ -379,7 +379,7 @@ export const Settings = ({ uiLanguage, onClose }) => {
       .then(importedConfig => {
         setConfig(importedConfig)
         saveNewsConfig(importedConfig)
-        success(t.configSaved)
+        success('Backup restored successfully. Reloading...')
         setTimeout(() => {
           window.location.reload()
         }, 1000)
