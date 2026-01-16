@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { createServer } from 'http';
 import iconv from 'iconv-lite';
+import rateLimit from 'express-rate-limit';
+import helmet from 'helmet';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -19,15 +21,110 @@ const VITE_PORT = process.env.VITE_PORT || 3072;
 // Middleware
 app.use(express.json());
 
+// Trust proxy (important when behind reverse proxy like nginx)
+// This ensures helmet gets correct client IP and protocol
+app.set('trust proxy', 1);
+
+// Security headers middleware
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"], // Vite bundles are from same origin
+      styleSrc: ["'self'", "'unsafe-inline'"], // Vite may inline styles, RSS feeds may have inline styles
+      imgSrc: ["'self'", "data:", "https:", "http:"], // Allow all external images (RSS thumbnails, SVGs, etc.)
+      connectSrc: ["'self'"], // API calls to same origin
+      fontSrc: ["'self'", "data:", "https:"], // Fonts may be data URLs or external
+      objectSrc: ["'none'"], // Block plugins
+      mediaSrc: ["'self'", "https:"], // Allow external media
+      frameSrc: ["'none'"], // Block iframes
+      baseUri: ["'self'"],
+      formAction: ["'self'"],
+      upgradeInsecureRequests: process.env.NODE_ENV === 'production' && process.env.HTTPS === 'true' ? [] : null,
+    },
+  },
+  // Other security headers
+  xFrameOptions: { action: 'deny' }, // Prevent clickjacking
+  xContentTypeOptions: true, // Prevent MIME sniffing
+  strictTransportSecurity: process.env.NODE_ENV === 'production' && process.env.HTTPS === 'true' ? {
+    maxAge: 31536000, // 1 year
+    includeSubDomains: true,
+    preload: true,
+  } : false, // Only in production with HTTPS
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
+}));
+
 // CORS headers for API endpoints
-app.use('/api', (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(200);
+// Get allowed origins from environment variable
+const getAllowedOrigins = () => {
+  if (process.env.NODE_ENV === 'development') {
+    // Development: Allow localhost on common ports
+    return [
+      'http://localhost:3072',
+      'http://localhost:3073',
+      'http://127.0.0.1:3072',
+      'http://127.0.0.1:3073',
+    ];
   }
-  next();
+  
+  // Production: Use environment variable
+  if (process.env.ALLOWED_ORIGINS) {
+    return process.env.ALLOWED_ORIGINS.split(',').map(o => o.trim()).filter(Boolean);
+  }
+  
+  // Fallback: Use HOST if set
+  if (process.env.HOST) {
+    const protocol = process.env.HTTPS === 'true' ? 'https' : 'http';
+    return [`${protocol}://${process.env.HOST}`];
+  }
+  
+  // Last resort: Allow all (not recommended, but better than breaking)
+  console.warn('[CORS] No ALLOWED_ORIGINS or HOST set, allowing all origins (not recommended for production)');
+  return ['*'];
+};
+
+app.use('/api', (req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigins = getAllowedOrigins();
+  
+  // Same-origin requests typically don't send Origin header
+  // If no origin, allow (same-origin request)
+  if (!origin) {
+    // Same-origin request - allow
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    return next();
+  }
+  
+  // Cross-origin request - check if allowed
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    if (req.method === 'OPTIONS') {
+      return res.sendStatus(200);
+    }
+    return next();
+  }
+  
+  // Origin not allowed
+  console.warn(`[CORS] Blocked request from origin: ${origin}`);
+  return res.status(403).json({ error: 'Origin not allowed' });
+});
+
+// Rate limiting for RSS proxy endpoint
+// Increased limit (500/15min) to handle parallel fetching of multiple RSS feeds
+// Frontend batching helps prevent hitting this limit
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 500, // 500 requests per 15 minutes (increased from 100 to handle parallel fetching)
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // Return rate limit info in `RateLimit-*` headers
+  legacyHeaders: false, // Disable `X-RateLimit-*` headers
+  skip: (req) => req.path === '/api/health', // Skip rate limiting for health checks
 });
 
 // Helper function to fetch with retries (generic, no feed-specific logic)
@@ -275,21 +372,84 @@ async function fetchWithRetry(feedUrl, retries = 2) {
   throw lastError || new Error('Failed after all retries');
 }
 
+// SSRF Protection: Validate URL is safe to fetch
+const isPrivateIP = (hostname) => {
+  // Check for localhost variants
+  if (hostname === 'localhost' || 
+      hostname === '127.0.0.1' || 
+      hostname === '0.0.0.0' ||
+      hostname === '::1' ||
+      hostname.startsWith('127.') ||
+      hostname.startsWith('::ffff:127.')) {
+    return true;
+  }
+  
+  // Check for private IP ranges
+  const privateIPPatterns = [
+    /^10\./,                    // 10.0.0.0/8
+    /^172\.(1[6-9]|2[0-9]|3[0-1])\./,  // 172.16.0.0/12
+    /^192\.168\./,              // 192.168.0.0/16
+    /^169\.254\./,              // 169.254.0.0/16 (link-local)
+    /^fc00:/i,                  // IPv6 private
+    /^fe80:/i,                  // IPv6 link-local
+  ];
+  
+  return privateIPPatterns.some(pattern => pattern.test(hostname));
+};
+
+const validateFeedUrl = (feedUrl) => {
+  let url;
+  
+  // Parse URL
+  try {
+    url = new URL(feedUrl);
+  } catch (e) {
+    return { valid: false, error: 'Invalid URL format' };
+  }
+  
+  // Protocol whitelist (only HTTP and HTTPS)
+  if (!['http:', 'https:'].includes(url.protocol)) {
+    return { valid: false, error: 'Only HTTP and HTTPS URLs are allowed' };
+  }
+  
+  // Block private IPs in production (allow in development for testing)
+  const isDevelopment = process.env.NODE_ENV === 'development';
+  if (!isDevelopment) {
+    const hostname = url.hostname.toLowerCase();
+    
+    // Check hostname directly
+    if (isPrivateIP(hostname)) {
+      return { valid: false, error: 'Private IP addresses are not allowed' };
+    }
+    
+    // TODO: DNS resolution check (optional, more secure but slower)
+    // For now, hostname check is sufficient for most cases
+  }
+  
+  // URL length limit
+  if (feedUrl.length > 2048) {
+    return { valid: false, error: 'URL too long (max 2048 characters)' };
+  }
+  
+  return { valid: true };
+};
+
 // RSS Feed Proxy Endpoint
-app.get('/api/proxy/rss', async (req, res) => {
+// Apply rate limiting to prevent abuse while allowing legitimate parallel fetching
+app.get('/api/proxy/rss', apiLimiter, async (req, res) => {
   const feedUrl = req.query.url;
   
   if (!feedUrl) {
     return res.status(400).json({ error: 'Missing url parameter' });
   }
 
+  // SSRF Protection: Validate URL
+  const validation = validateFeedUrl(feedUrl);
+  if (!validation.valid) {
+    return res.status(400).json({ error: validation.error });
+  }
+
   try {
-    // Validate URL
-    try {
-      new URL(feedUrl);
-    } catch (e) {
-      return res.status(400).json({ error: 'Invalid URL format' });
-    }
 
     // Fetch with retries (generic, no feed-specific logic)
     const { text, contentType } = await fetchWithRetry(feedUrl);

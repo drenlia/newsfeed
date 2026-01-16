@@ -11,7 +11,6 @@ This guide explains all features and options available in the News Feed applicat
 - **Tab Navigation**: 
   - Click a tab to switch between different news source configurations
   - Double-click a tab name to rename it
-  - Drag tabs to reorder them
 
 ### Subheader Controls
 

@@ -82,9 +82,55 @@ export const useNews = (tabSources = null, tabId = null, showToastMessages = tru
         return
       }
       
-      // Fetch all sources in parallel
-      const fetchPromises = sourcesToFetch.map(source => fetchRssFeed(source))
-      const results = await Promise.all(fetchPromises)
+      // Fetch sources in batches to avoid rate limiting
+      // Batch size and delay can be adjusted based on rate limit settings
+      const BATCH_SIZE = 50 // Fetch 50 feeds per batch
+      const BATCH_DELAY = 2000 // Wait 2 seconds between batches
+      
+      const allResults = []
+      const batches = []
+      
+      // Create batches
+      for (let i = 0; i < sourcesToFetch.length; i += BATCH_SIZE) {
+        batches.push(sourcesToFetch.slice(i, i + BATCH_SIZE))
+      }
+      
+      // Fetch each batch sequentially with delay to prevent rate limiting
+      for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+        const batch = batches[batchIndex]
+        
+        // Fetch batch in parallel
+        const batchPromises = batch.map(source => fetchRssFeed(source))
+        const batchResults = await Promise.allSettled(batchPromises)
+        
+        // Convert Promise.allSettled results to expected format
+        const normalizedResults = batchResults.map(result => {
+          if (result.status === 'fulfilled') {
+            return result.value
+          } else {
+            // Handle rejected promises
+            const source = batch[batchResults.indexOf(result)]
+            const sourceName = source?.name || (typeof source === 'string' ? source : 'Unknown')
+            return {
+              news: [],
+              error: {
+                name: sourceName,
+                message: result.reason?.message || 'Failed to fetch feed',
+                status: 500
+              }
+            }
+          }
+        })
+        
+        allResults.push(...normalizedResults)
+        
+        // Wait before next batch (except for last batch)
+        if (batchIndex < batches.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, BATCH_DELAY))
+        }
+      }
+      
+      const results = allResults
       
       // Collect failed feeds and successful feeds
       const failedFeeds = []

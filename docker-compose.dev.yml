@@ -21,6 +21,9 @@ services:
       - BACKEND_PORT=3073
       # HOST is read from .env file (defaults to localhost)
       - HOST=${HOST:-localhost}
+      # CORS and HTTPS configuration (optional in dev, but included for consistency)
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
+      - HTTPS=${HTTPS:-false}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3072', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]

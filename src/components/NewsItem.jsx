@@ -1,5 +1,6 @@
 import { formatDate } from '../utils/dateUtils'
 import { normalizeCategory } from '../utils/categoryUtils'
+import { sanitizeRssHtml } from '../utils/sanitizeHtml'
 
 export const NewsItem = ({ item, uiLanguage, isNew, combinedCategories, onCategoryClick }) => {
   const formatDateLocalized = (date) => formatDate(date, uiLanguage)
@@ -78,18 +79,20 @@ export const NewsItem = ({ item, uiLanguage, isNew, combinedCategories, onCatego
               <p 
                 className="news-description" 
                 dangerouslySetInnerHTML={{ 
-                  __html: item.description
-                    .replace(/<img[^>]*>/gi, '') // Remove all img tags from description
-                    .replace(/<figure[^>]*>.*?<\/figure>/gi, '') // Remove figure tags with images
-                    .replace(/<picture[^>]*>.*?<\/picture>/gi, '') // Remove picture tags
-                    .replace(/<div[^>]*class="[^"]*image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with image classes
-                    .replace(/<div[^>]*style="[^"]*background-image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with background images
-                    .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '') // Remove iframes (YouTube, etc.)
-                    .replace(/<embed[^>]*>.*?<\/embed>/gi, '') // Remove embed tags
-                    .replace(/<object[^>]*>.*?<\/object>/gi, '') // Remove object tags
-                    .replace(/<video[^>]*>.*?<\/video>/gi, '') // Remove video tags
-                    .replace(/<audio[^>]*>.*?<\/audio>/gi, '') // Remove audio tags
-                    .replace(/<core-commerce[^>]*>.*?<\/core-commerce>/gi, '') // Remove custom elements
+                  __html: sanitizeRssHtml(
+                    item.description
+                      .replace(/<img[^>]*>/gi, '') // Remove all img tags from description
+                      .replace(/<figure[^>]*>.*?<\/figure>/gi, '') // Remove figure tags with images
+                      .replace(/<picture[^>]*>.*?<\/picture>/gi, '') // Remove picture tags
+                      .replace(/<div[^>]*class="[^"]*image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with image classes
+                      .replace(/<div[^>]*style="[^"]*background-image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with background images
+                      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '') // Remove iframes (YouTube, etc.)
+                      .replace(/<embed[^>]*>.*?<\/embed>/gi, '') // Remove embed tags
+                      .replace(/<object[^>]*>.*?<\/object>/gi, '') // Remove object tags
+                      .replace(/<video[^>]*>.*?<\/video>/gi, '') // Remove video tags
+                      .replace(/<audio[^>]*>.*?<\/audio>/gi, '') // Remove audio tags
+                      .replace(/<core-commerce[^>]*>.*?<\/core-commerce>/gi, '') // Remove custom elements
+                  )
                 }} 
               />
             ) : (
@@ -100,18 +103,20 @@ export const NewsItem = ({ item, uiLanguage, isNew, combinedCategories, onCatego
                 rel="noopener noreferrer"
                 className="news-description news-description-link"
                 dangerouslySetInnerHTML={{ 
-                  __html: item.description
-                    .replace(/<img[^>]*>/gi, '') // Remove all img tags from description
-                    .replace(/<figure[^>]*>.*?<\/figure>/gi, '') // Remove figure tags with images
-                    .replace(/<picture[^>]*>.*?<\/picture>/gi, '') // Remove picture tags
-                    .replace(/<div[^>]*class="[^"]*image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with image classes
-                    .replace(/<div[^>]*style="[^"]*background-image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with background images
-                    .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '') // Remove iframes (YouTube, etc.)
-                    .replace(/<embed[^>]*>.*?<\/embed>/gi, '') // Remove embed tags
-                    .replace(/<object[^>]*>.*?<\/object>/gi, '') // Remove object tags
-                    .replace(/<video[^>]*>.*?<\/video>/gi, '') // Remove video tags
-                    .replace(/<audio[^>]*>.*?<\/audio>/gi, '') // Remove audio tags
-                    .replace(/<core-commerce[^>]*>.*?<\/core-commerce>/gi, '') // Remove custom elements
+                  __html: sanitizeRssHtml(
+                    item.description
+                      .replace(/<img[^>]*>/gi, '') // Remove all img tags from description
+                      .replace(/<figure[^>]*>.*?<\/figure>/gi, '') // Remove figure tags with images
+                      .replace(/<picture[^>]*>.*?<\/picture>/gi, '') // Remove picture tags
+                      .replace(/<div[^>]*class="[^"]*image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with image classes
+                      .replace(/<div[^>]*style="[^"]*background-image[^"]*"[^>]*>.*?<\/div>/gi, '') // Remove divs with background images
+                      .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '') // Remove iframes (YouTube, etc.)
+                      .replace(/<embed[^>]*>.*?<\/embed>/gi, '') // Remove embed tags
+                      .replace(/<object[^>]*>.*?<\/object>/gi, '') // Remove object tags
+                      .replace(/<video[^>]*>.*?<\/video>/gi, '') // Remove video tags
+                      .replace(/<audio[^>]*>.*?<\/audio>/gi, '') // Remove audio tags
+                      .replace(/<core-commerce[^>]*>.*?<\/core-commerce>/gi, '') // Remove custom elements
+                  )
                 }} 
               />
             )

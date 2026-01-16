@@ -13,6 +13,9 @@ services:
       # Set HOST to match your nginx server_name (or domain)
       # This tells Vite which host(s) to allow
       - HOST=${HOST:-localhost}
+      # CORS and HTTPS configuration
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
+      - HTTPS=${HTTPS:-false}
       # Or use ALLOWED_HOSTS for multiple hosts (comma-separated):
       # - ALLOWED_HOSTS=${ALLOWED_HOSTS}
     healthcheck:

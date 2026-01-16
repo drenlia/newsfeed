@@ -4,7 +4,8 @@
 const decodeHtmlEntities = (text) => {
   if (!text) return ''
   
-  // Create a temporary textarea element to decode HTML entities
+  // Use a textarea with innerHTML (safe for textarea - doesn't trigger resource loading)
+  // Textarea elements don't parse HTML, they just decode entities
   const textarea = document.createElement('textarea')
   textarea.innerHTML = text
   return textarea.value
@@ -17,12 +18,28 @@ const stripHtmlTags = (html) => {
   // First decode HTML entities
   let text = decodeHtmlEntities(html)
   
-  // Create a temporary div to parse HTML and extract text
-  const tempDiv = document.createElement('div')
-  tempDiv.innerHTML = text
+  // Remove style tags and style attributes before parsing to prevent browser
+  // from trying to load external resources (CSS background images, SVG sprites, etc.)
+  // This prevents CORS errors when parsing HTML
+  text = text
+    .replace(/<style[^>]*>.*?<\/style>/gi, '') // Remove style tags
+    .replace(/\s+style\s*=\s*["'][^"']*["']/gi, '') // Remove style attributes with quotes
+    .replace(/\s+style\s*=\s*[^>\s]+/gi, '') // Remove style attributes without quotes
+    .replace(/<link[^>]*rel\s*=\s*["']stylesheet["'][^>]*>/gi, '') // Remove stylesheet links
+    .replace(/<link[^>]*type\s*=\s*["']text\/css["'][^>]*>/gi, '') // Remove CSS links
+    .replace(/\s+class\s*=\s*["'][^"']*["']/gi, '') // Remove ALL class attributes (prevent sprite/icon references)
   
-  // Get text content (this automatically strips HTML tags)
-  let plainText = tempDiv.textContent || tempDiv.innerText || ''
+  // Use DOMParser instead of innerHTML to avoid triggering resource loading
+  // DOMParser doesn't trigger resource loading like innerHTML does
+  let plainText = ''
+  try {
+    const parser = new DOMParser()
+    const doc = parser.parseFromString(text, 'text/html')
+    plainText = doc.body.textContent || doc.body.innerText || ''
+  } catch (e) {
+    // If DOMParser fails, fall back to regex-based text extraction
+    plainText = text.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim()
+  }
   
   // Clean up extra whitespace
   plainText = plainText.replace(/\s+/g, ' ').trim()
@@ -588,170 +605,220 @@ const parseRssItem = (item, source) => {
   }
 }
 
-// Fetch RSS feed from a single source
+// Fetch RSS feed from a single source with retry logic for rate limiting
 // Returns { news: [], error: { name, message, status } | null }
-export const fetchRssFeed = async (source) => {
+export const fetchRssFeed = async (source, maxRetries = 2) => {
   const sourceNews = []
   
-  try {
-    let response = null
-    let text = null
-    
-    // Use backend proxy to avoid CORS issues
-    // The backend server fetches RSS feeds server-side, avoiding browser CORS restrictions
+  // Retry logic for rate limiting (429 errors)
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
     try {
-      const proxyUrl = `/api/proxy/rss?url=${encodeURIComponent(source.url)}`
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
+      let response = null
+      let text = null
       
-      response = await fetch(proxyUrl, {
-        signal: controller.signal,
-        headers: {
-          'Accept': 'application/rss+xml, application/xml, text/xml, */*'
-        }
-      })
-      
-      clearTimeout(timeoutId)
-      
-      if (!response || !response.ok) {
-        let errorData = { message: 'Unknown error' }
-        try {
-          const errorText = await response.text()
-          errorData = JSON.parse(errorText)
-        } catch (e) {
-          errorData = { message: `HTTP ${response?.status || 'Unknown'}` }
-        }
+      // Use backend proxy to avoid CORS issues
+      // The backend server fetches RSS feeds server-side, avoiding browser CORS restrictions
+      try {
+        const proxyUrl = `/api/proxy/rss?url=${encodeURIComponent(source.url)}`
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000) // 10 second timeout
         
-        const error = {
-          name: source.name,
-          message: errorData.error || errorData.message || `HTTP ${response?.status}`,
-          status: response?.status || 500
-        }
+        response = await fetch(proxyUrl, {
+          signal: controller.signal,
+          headers: {
+            'Accept': 'application/rss+xml, application/xml, text/xml, */*'
+          }
+        })
         
-        console.warn(`[${source.name}] Backend proxy failed (${error.status}): ${error.message}`)
-        return { news: sourceNews, error }
-      }
-      
-      text = await response.text()
-      
-      // Validate it's actually XML/RSS
-      const trimmedText = text.trim()
-      if (!trimmedText.includes('<rss') && 
-          !trimmedText.includes('<feed') && 
-          !trimmedText.includes('<?xml') &&
-          !trimmedText.includes('<RDF')) {
-        console.warn(`[${source.name}] Backend proxy returned non-XML content`)
-        const error = {
-          name: source.name,
-          message: 'Invalid RSS feed format',
-          status: 500
-        }
-        return { news: sourceNews, error }
-      }
-      
-      
-    } catch (err) {
-      // Backend proxy failed
-      const error = {
-        name: source.name,
-        message: err.name === 'AbortError' ? 'Request timeout' : (err.message || 'Network error'),
-        status: err.name === 'AbortError' ? 504 : 500
-      }
-      
-      if (err.name === 'AbortError') {
-        console.warn(`[${source.name}] Backend proxy request timeout`)
-      } else {
-        console.warn(`[${source.name}] Backend proxy error: ${err.message || err}`)
-      }
-      return { news: sourceNews, error }
-    }
-    
-    // If we don't have text at this point, proxy failed
-    if (!text) {
-      const error = {
-        name: source.name,
-        message: 'Empty response',
-        status: 500
-      }
-      console.warn(`[${source.name}] Failed to fetch feed: ${source.url}`)
-      return { news: sourceNews, error }
-    }
-    
-    // Parse the XML we got
-    // The server now sends Content-Type with charset=utf-8 and normalizes XML declaration
-    // Ensure the XML declaration specifies UTF-8 for proper character encoding
-    let xmlText = text
-    if (xmlText.trim().startsWith('<?xml')) {
-      // Ensure encoding is UTF-8 in XML declaration
-      xmlText = xmlText.replace(
-        /<\?xml\s+version=["']([^"']+)["'](\s+encoding=["'][^"']+["'])?/i,
-        '<?xml version="$1" encoding="UTF-8"'
-      )
-    } else {
-      // No XML declaration, add one with UTF-8
-      xmlText = '<?xml version="1.0" encoding="UTF-8"?>\n' + xmlText
-    }
-    
-    const parser = new DOMParser()
-    // DOMParser will use the encoding specified in the XML declaration (UTF-8)
-    const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
-    
-    const parseError = xmlDoc.querySelector('parsererror')
-    if (parseError) {
-      // Even if there's a parse error, try to extract items
-      const items = xmlDoc.querySelectorAll('item')
-      if (items.length === 0) {
-        // Only log in dev mode and suppress common parse errors that don't prevent extraction
-        if (process.env.NODE_ENV === 'development') {
-          const errorText = parseError.textContent || ''
-          // Don't log if we can still extract items (some feeds have minor XML issues)
-          if (!errorText.includes('mismatch') && !errorText.includes('invalid')) {
+        clearTimeout(timeoutId)
+        
+        // Handle rate limiting (429) with retry
+        if (response && response.status === 429) {
+          if (attempt < maxRetries) {
+            // Calculate exponential backoff: 1min, 2min, 3min
+            const waitTime = (attempt + 1) * 60000
+            console.warn(`[${source.name}] Rate limited (429), waiting ${waitTime}ms before retry ${attempt + 1}/${maxRetries}...`)
+            await new Promise(resolve => setTimeout(resolve, waitTime))
+            continue // Retry the request
+          } else {
+            // Max retries reached
+            const error = {
+              name: source.name,
+              message: 'Rate limit exceeded. Please try again later.',
+              status: 429
+            }
+            console.warn(`[${source.name}] Rate limited (429) after ${maxRetries} retries`)
+            return { news: sourceNews, error }
           }
         }
-        return sourceNews
+        
+        if (!response || !response.ok) {
+          let errorData = { message: 'Unknown error' }
+          try {
+            const errorText = await response.text()
+            errorData = JSON.parse(errorText)
+          } catch (e) {
+            errorData = { message: `HTTP ${response?.status || 'Unknown'}` }
+          }
+          
+          const error = {
+            name: source.name,
+            message: errorData.error || errorData.message || `HTTP ${response?.status}`,
+            status: response?.status || 500
+          }
+          
+          console.warn(`[${source.name}] Backend proxy failed (${error.status}): ${error.message}`)
+          return { news: sourceNews, error }
+        }
+        
+        text = await response.text()
+        
+        // Validate it's actually XML/RSS
+        const trimmedText = text.trim()
+        if (!trimmedText.includes('<rss') && 
+            !trimmedText.includes('<feed') && 
+            !trimmedText.includes('<?xml') &&
+            !trimmedText.includes('<RDF')) {
+          console.warn(`[${source.name}] Backend proxy returned non-XML content`)
+          const error = {
+            name: source.name,
+            message: 'Invalid RSS feed format',
+            status: 500
+          }
+          return { news: sourceNews, error }
+        }
+        
+      } catch (err) {
+        // Backend proxy failed - retry if not last attempt
+        if (attempt < maxRetries && err.name !== 'AbortError') {
+          const waitTime = (attempt + 1) * 1000 // Shorter wait for network errors
+          console.warn(`[${source.name}] Network error, retrying in ${waitTime}ms...`)
+          await new Promise(resolve => setTimeout(resolve, waitTime))
+          continue
+        }
+        
+        const error = {
+          name: source.name,
+          message: err.name === 'AbortError' ? 'Request timeout' : (err.message || 'Network error'),
+          status: err.name === 'AbortError' ? 504 : 500
+        }
+        
+        if (err.name === 'AbortError') {
+          console.warn(`[${source.name}] Backend proxy request timeout`)
+        } else {
+          console.warn(`[${source.name}] Backend proxy error: ${err.message || err}`)
+        }
+        return { news: sourceNews, error }
       }
-      // Continue processing even with parse error if we have items
-      // Many RSS feeds have minor XML issues but still work
-    }
-    
-    const items = xmlDoc.querySelectorAll('item')
-    
-    items.forEach(item => {
-      const parsedItem = parseRssItem(item, source)
-      if (parsedItem) {
-        sourceNews.push(parsedItem)
+      
+      // If we don't have text at this point, proxy failed
+      if (!text) {
+        const error = {
+          name: source.name,
+          message: 'Empty response',
+          status: 500
+        }
+        console.warn(`[${source.name}] Failed to fetch feed: ${source.url}`)
+        return { news: sourceNews, error }
       }
-    })
-    
-    if (sourceNews.length === 0 && items.length > 0) {
-      // We parsed items but they were filtered out (likely date filter)
-      console.warn(`[${source.name}] Parsed ${items.length} items but none matched the date filter (last 24 hours)`)
-      // Log the dates of the first few items to help debug
-      const sampleDates = Array.from(items).slice(0, 3).map(item => {
-        const pubDate = item.querySelector('pubDate')?.textContent || 
-                      item.querySelector('published')?.textContent || 
-                      item.querySelector('dc\\:date')?.textContent || 
-                      'No date found'
-        return pubDate
+      
+      // Parse the XML we got
+      // The server now sends Content-Type with charset=utf-8 and normalizes XML declaration
+      // Ensure the XML declaration specifies UTF-8 for proper character encoding
+      let xmlText = text
+      if (xmlText.trim().startsWith('<?xml')) {
+        // Ensure encoding is UTF-8 in XML declaration
+        xmlText = xmlText.replace(
+          /<\?xml\s+version=["']([^"']+)["'](\s+encoding=["'][^"']+["'])?/i,
+          '<?xml version="$1" encoding="UTF-8"'
+        )
+      } else {
+        // No XML declaration, add one with UTF-8
+        xmlText = '<?xml version="1.0" encoding="UTF-8"?>\n' + xmlText
+      }
+      
+      const parser = new DOMParser()
+      // DOMParser will use the encoding specified in the XML declaration (UTF-8)
+      const xmlDoc = parser.parseFromString(xmlText, 'text/xml')
+      
+      const parseError = xmlDoc.querySelector('parsererror')
+      if (parseError) {
+        // Even if there's a parse error, try to extract items
+        const items = xmlDoc.querySelectorAll('item')
+        if (items.length === 0) {
+          // Only log in dev mode and suppress common parse errors that don't prevent extraction
+          if (process.env.NODE_ENV === 'development') {
+            const errorText = parseError.textContent || ''
+            // Don't log if we can still extract items (some feeds have minor XML issues)
+            if (!errorText.includes('mismatch') && !errorText.includes('invalid')) {
+            }
+          }
+          return { news: sourceNews, error: null }
+        }
+        // Continue processing even with parse error if we have items
+        // Many RSS feeds have minor XML issues but still work
+      }
+      
+      const items = xmlDoc.querySelectorAll('item')
+      
+      items.forEach(item => {
+        const parsedItem = parseRssItem(item, source)
+        if (parsedItem) {
+          sourceNews.push(parsedItem)
+        }
       })
-      console.warn(`[${source.name}] Sample article dates:`, sampleDates)
-    } else if (sourceNews.length > 0) {
-    } else if (items.length === 0) {
-      console.warn(`[${source.name}] Feed contains no items`)
+      
+      if (sourceNews.length === 0 && items.length > 0) {
+        // We parsed items but they were filtered out (likely date filter)
+        console.warn(`[${source.name}] Parsed ${items.length} items but none matched the date filter (last 24 hours)`)
+        // Log the dates of the first few items to help debug
+        const sampleDates = Array.from(items).slice(0, 3).map(item => {
+          const pubDate = item.querySelector('pubDate')?.textContent || 
+                        item.querySelector('published')?.textContent || 
+                        item.querySelector('dc\\:date')?.textContent || 
+                        'No date found'
+          return pubDate
+        })
+        console.warn(`[${source.name}] Sample article dates:`, sampleDates)
+      } else if (sourceNews.length > 0) {
+      } else if (items.length === 0) {
+        console.warn(`[${source.name}] Feed contains no items`)
+      }
+      
+      // Success - break out of retry loop
+      return { news: sourceNews, error: null }
+      
+    } catch (err) {
+      // Only log unexpected errors (not timeouts, which are handled above)
+      if (attempt === maxRetries) {
+        const error = {
+          name: source.name,
+          message: err.message || 'Unexpected error',
+          status: 500
+        }
+        
+        if (err.name !== 'AbortError' && process.env.NODE_ENV === 'development') {
+          console.debug(`[${source.name}] Unexpected error:`, err.message || err)
+        }
+        return { news: sourceNews, error }
+      }
+      // Retry on unexpected errors (except abort)
+      if (err.name !== 'AbortError') {
+        const waitTime = (attempt + 1) * 1000
+        console.warn(`[${source.name}] Unexpected error, retrying in ${waitTime}ms...`)
+        await new Promise(resolve => setTimeout(resolve, waitTime))
+        continue
+      }
+      // AbortError - don't retry
+      const error = {
+        name: source.name,
+        message: 'Request timeout',
+        status: 504
+      }
+      return { news: sourceNews, error }
     }
-    
-    return { news: sourceNews, error: null }
-  } catch (err) {
-    // Only log unexpected errors (not timeouts, which are handled in the loop)
-    const error = {
-      name: source.name,
-      message: err.message || 'Unexpected error',
-      status: 500
-    }
-    
-    if (err.name !== 'AbortError' && process.env.NODE_ENV === 'development') {
-      console.debug(`[${source.name}] Unexpected error:`, err.message || err)
-    }
-    return { news: sourceNews, error }
   }
+  
+  // Should never reach here, but just in case
+  return { news: sourceNews, error: { name: source.name, message: 'Max retries exceeded', status: 500 } }
 }
