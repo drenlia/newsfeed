@@ -123,10 +123,48 @@ The validation shows:
 - **Copy URL**: Click anywhere on an active source card to copy its URL to clipboard
 - **Remove Source**: Click the × button on any source to remove it
 
-### Configuration Management
+### Backup and Restore
 
-- **Export Configuration**: Download your current tab and source configuration as a JSON file
-- **Import Configuration**: Upload a previously exported JSON file to restore your configuration
+The application allows you to export your complete configuration and restore it later. This is useful for:
+- Backing up your settings before making major changes
+- Transferring your configuration to another device or browser
+- Recovering your setup if you lose your browser data
+- Sharing your configuration with others
+
+#### Exporting Your Configuration
+
+1. **Go to Settings**: Click the Settings button in the top right
+2. **Scroll to Bottom**: Navigate to the "Import/Export" section at the bottom of the Settings page
+3. **Click "Export Configuration"**: This downloads a backup file named `newsfeed-backup-YYYY-MM-DD.json`
+
+**What Gets Exported:**
+- All your custom tabs and their names
+- All RSS feed sources configured for each tab
+- Your active tab selection
+- Category, language, date, and search filters for each tab
+- Your settings preferences (selected countries, toast messages setting, subheader collapsed state)
+
+**Note**: Cached news articles are NOT exported (they will be re-fetched automatically when you restore).
+
+#### Importing/Restoring Your Configuration
+
+1. **Go to Settings**: Click the Settings button in the top right
+2. **Scroll to Bottom**: Navigate to the "Import/Export" section
+3. **Click "Import Configuration"**: This opens a file picker
+4. **Select Your Backup File**: Choose the `newsfeed-backup-*.json` file you previously exported
+5. **Wait for Confirmation**: You'll see a success message, and the page will automatically reload after 1 second
+
+**What Gets Restored:**
+- All tabs are recreated with their original names and sources
+- Your active tab is restored
+- All tab filters are restored
+- Your settings preferences are restored
+
+**Important Notes:**
+- Importing will **replace** your current configuration. Make sure to export your current setup first if you want to keep it.
+- The application supports both the new backup format (v1.0) and the old format (sources only) for backward compatibility.
+- After importing, the page will reload to apply all changes.
+- If you import a backup that has tabs with sources that no longer exist, those sources will still be restored but may not fetch articles if the RSS feed is unavailable.
 
 ## Tips and Best Practices
 
